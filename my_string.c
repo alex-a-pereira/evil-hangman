@@ -150,13 +150,13 @@ Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 
 	// parse past leading whitespace
 	char ch_from_file = fgetc(fp);
-	
+
 	// return false when the end of file is reached
 	if (ch_from_file == EOF)
 	{
 		return FAILURE;
 	}
-	
+
 	while (isspace(ch_from_file) || ch_from_file == EOF)
 	{
 		ch_from_file = fgetc(fp);
@@ -170,15 +170,20 @@ Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 			int old_size = pMy_string->capacity - 1;
 
 			char* temp_data1 = (char *)malloc(sizeof(char) * old_size);
+
 			for (int i = 0; i < ch_count; i++) {
 				temp_data1[i] = pMy_string->data[i];
 			}
 
 			free(pMy_string->data);
-			
+
 			// update string capacity and dynamically increased allocate memory
 			pMy_string->capacity = (old_size * 2) + 1;
 			pMy_string->data = (char *)malloc(sizeof(char) * (pMy_string->capacity));
+
+			if (pMy_string->data == NULL) {
+				return FAILURE;
+			}
 
 			for (int i = 0; i < old_size; i++) {
 				pMy_string->data[i] = temp_data1[i];
@@ -195,7 +200,7 @@ Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 
 	// update size to accurately reflect the number of characters
 	pMy_string->size = ch_count;
-	
+
 	// move cursor back to allow next iteration to parse cleanly
 	fseek(fp, -1, SEEK_CUR);
 	return SUCCESS;
@@ -213,3 +218,104 @@ Status my_string_insertion(MY_STRING hMy_string, FILE *fp)
 
 	return FAILURE;
 }
+
+Status my_string_push_back(MY_STRING hMy_string, char item) {
+	My_string *pMy_string = (My_string *)hMy_string;
+
+	// handle case where no room is available in the string
+	if (pMy_string->size + 1 == pMy_string->capacity)
+	{
+		int old_size = pMy_string->capacity - 1;
+
+		char* temp_data1 = (char *)malloc(sizeof(char) * old_size);
+		for (int i = 0; i < old_size; i++) {
+			temp_data1[i] = pMy_string->data[i];
+		}
+
+		free(pMy_string->data);
+
+		// update string capacity and dynamically increased allocate memory
+		pMy_string->capacity = (old_size * 2) + 1;
+		pMy_string->data = (char *)malloc(sizeof(char) * (pMy_string->capacity));
+
+		if (pMy_string->data == NULL) {
+			return FAILURE;
+		}
+
+		for (int i = 0; i < old_size; i++) {
+			pMy_string->data[i] = temp_data1[i];
+		}
+		
+		free(temp_data1);
+	}
+	pMy_string->size++;
+	pMy_string->data[pMy_string->size - 1] = item;
+
+	return SUCCESS;
+}
+
+Status my_string_pop_back(MY_STRING hMy_string) 
+{
+	My_string *pMy_string = (My_string *)hMy_string;
+	
+	if (pMy_string->size == 0) {
+		return FAILURE;
+	}
+	else {
+		pMy_string->size --;
+		return SUCCESS;
+	}
+}
+
+char* my_string_at(MY_STRING hMy_string, int index) {
+	My_string *pMy_string = (My_string *)hMy_string;
+	
+	if (index < 0 || index >= pMy_string->size) {
+		return FAILURE;
+	}
+	else {
+		char* pChar = pMy_string->data + index;
+		return pChar;
+	}	
+}
+
+char* my_string_c_str(MY_STRING hMy_string) {
+	My_string *pMy_string = (My_string *)hMy_string;
+
+	if (pMy_string->size == 0) {
+		return FAILURE;
+	}
+	else {
+		pMy_string->data[pMy_string->size] = '\0';
+		char* pChar = pMy_string->data;
+		return pChar;
+	}
+}
+
+Status my_string_concat(MY_STRING hResult, MY_STRING hAppend) {
+	My_string *pResult = (My_string *)hResult;
+	My_string *pAppend = (My_string *)hAppend;
+
+	if (pResult->size + pAppend->size >= (pResult->capacity)) {
+		return FAILURE;
+	}
+	else {
+		int index_offset = pResult->size;
+		for (int i = 0; i < pAppend->size; i++) {
+			pResult->data[index_offset + i] = pAppend->data[i];
+			pResult->size++;
+		}
+		return SUCCESS;
+	}
+}
+
+Boolean my_string_empty(MY_STRING hMy_string) {
+	My_string *pMy_string = (My_string *)hMy_string;
+
+	if (pMy_string->size == 0) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
