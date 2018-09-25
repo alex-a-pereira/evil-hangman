@@ -1,0 +1,10 @@
+/Debug
+
+# testing
+/coverage
+
+# misc
+.DS_Store
+.vcxproj
+.vcxproj.filters
+.vcxproj.user
