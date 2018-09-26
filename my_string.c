@@ -28,7 +28,6 @@ MY_STRING my_string_init_default(void)
 			pMy_string = NULL;
 		}
 	}
-	printf("my string default size and cap, %d %d\n", pMy_string->size, pMy_string->capacity);
 	return pMy_string;
 }
 
@@ -160,6 +159,10 @@ Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 	while (isspace(ch_from_file) || ch_from_file == EOF)
 	{
 		ch_from_file = fgetc(fp);
+		if (ch_from_file == EOF)
+		{
+			return FAILURE;
+		}
 	}
 
 	int ch_count = 0;
@@ -215,7 +218,7 @@ Status my_string_insertion(MY_STRING hMy_string, FILE *fp)
 		fprintf(fp, "%c", pMy_string->data[i]);
 		i++;
 	}
-
+	printf("\n");
 	return FAILURE;
 }
 
@@ -245,7 +248,7 @@ Status my_string_push_back(MY_STRING hMy_string, char item) {
 		for (int i = 0; i < old_size; i++) {
 			pMy_string->data[i] = temp_data1[i];
 		}
-		
+
 		free(temp_data1);
 	}
 	pMy_string->size++;
@@ -254,10 +257,10 @@ Status my_string_push_back(MY_STRING hMy_string, char item) {
 	return SUCCESS;
 }
 
-Status my_string_pop_back(MY_STRING hMy_string) 
+Status my_string_pop_back(MY_STRING hMy_string)
 {
 	My_string *pMy_string = (My_string *)hMy_string;
-	
+
 	if (pMy_string->size == 0) {
 		return FAILURE;
 	}
@@ -269,14 +272,14 @@ Status my_string_pop_back(MY_STRING hMy_string)
 
 char* my_string_at(MY_STRING hMy_string, int index) {
 	My_string *pMy_string = (My_string *)hMy_string;
-	
+
 	if (index < 0 || index >= pMy_string->size) {
 		return FAILURE;
 	}
 	else {
 		char* pChar = pMy_string->data + index;
 		return pChar;
-	}	
+	}
 }
 
 char* my_string_c_str(MY_STRING hMy_string) {
@@ -318,4 +321,3 @@ Boolean my_string_empty(MY_STRING hMy_string) {
 		return FALSE;
 	}
 }
-
