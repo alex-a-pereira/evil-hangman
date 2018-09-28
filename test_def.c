@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <string.h>
+#include "unit_test.h"
+
 Status test_init_default_returns_nonNULL(char* buffer, int length)
 {
 	MY_STRING hString = NULL;
@@ -15,7 +19,9 @@ Status test_init_default_returns_nonNULL(char* buffer, int length)
 		strncpy(buffer, "\ttest_init_default_returns_nonNULL\n", length);
 		return SUCCESS;
 	}
-}Status test_get_size_on_init_default_returns_0(char* buffer, int length)
+}
+
+Status test_get_size_on_init_default_returns_0(char* buffer, int length)
 {
 	MY_STRING hString = NULL;
 	Status status;
