@@ -6,7 +6,17 @@ int main(int argc, char* argv[])
 	Status(*tests[])(char*, int) =
 	{
 		test_init_default_returns_nonNULL,
-		test_get_size_on_init_default_returns_0
+		test_get_size_on_init_default_returns_0,
+		test_apereira_init_c_string_blank_string,
+		test_apereira_init_c_string_proper_size_and_capacity,
+		test_apereira_init_c_string_long_string_returns_proper_size_and_cap,
+		test_apereira_compare_left_smaller_returns_negative,
+		test_apereira_compare_left_larger_returns_positive,
+		test_apereira_compare_left_long_right_short,
+		test_apereira_extraction_leading_whitespace,
+		test_apereira_extraction_non_spacechar_whitespace_between_words,
+		test_apereira_extraction_works_for_str_that_was_init_c_string,
+
 	};
 	int number_of_functions = sizeof(tests) / sizeof(tests[0]);
 	int i;
