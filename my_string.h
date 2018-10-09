@@ -1,5 +1,6 @@
 #include "status.h"
 #include "boolean.h"
+#include "generic.h"
 /*
 struct MY_STRING declares an object that contains the following:
 1. an integer 'size', which holds the number of characters contained
@@ -24,16 +25,6 @@ MY_STRING my_string_init_default(void);
 
 /*
 PRE:
-phMy_string holds the address of a valid handle to a MY_STRING object
-POST:
-The memory used for the MY_STRING object has been reclaimed by the system
-The handle referred to by the pointer phMy_string has bee set to NULL
-*/
-void my_string_destroy(MY_STRING* phMy_string);
-
-
-/*
-PRE:
 c_string is a valid null terminated c-string
 POST:
 Allocate space ofr a string object that represents a string
@@ -45,14 +36,20 @@ on failure: NULL
 */
 MY_STRING my_string_init_c_string(const char* c_string);
 
-/*
-* PRE:
-* hMy_string is the handle of a valid My_string object
-* POST:
-* Returns a copy of the integer value of the object's capacity
-*/
-int my_string_get_capacity(MY_STRING hMy_string);
+//Precondition: hMy_string is the handle to a valid My_string object.
+//Postcondition: If successful, places the character item at the end of the
+// string and returns SUCCESS. If the string does not have enough room and
+// cannot resize to accomodate the new character then the operation fails
+// and FAILURE is returned. The resize operation will attempt to amortize
+// the cost of a resize by making the string capacity somewhat larger than
+// it was before (up to 2 times bigger).
+Status my_string_push_back(MY_STRING hMy_string, char item);
 
+//Precondition: hMy_string is the handle to a valid My_string object.
+//Postcondition: Removes the last character of a string in constant time.
+// Guaranteed to not cause a resize operation of the internal data. Returns
+// SUCCESS on success and FAILURE if the string is empty.
+Status my_string_pop_back(MY_STRING hMy_string);
 /*
 * PRE:
 * hMy_string is the handle of a valid My_string object
@@ -62,25 +59,31 @@ int my_string_get_capacity(MY_STRING hMy_string);
 int my_string_get_size(MY_STRING hMy_string);
 
 /*
-PRE:
-hLeft_string and hRight_string are valid My_string objects
-POST:
-Consider than a string is considered "less than" if it is lexicographically
-smaller than the string it's compared to. If one string is a prefix
-of the other string then the shorter String is considered to be
-the smaller one (e.g. app is less than apple).
-RETURN:
-Case 1. Returns an integer less than zero if the string represented by hLeft_string
-is smaller than hRight_string.
-
-Case 2. Returns 0 if the strings are the same
-
-Case 3. Returns a integer greater than zero if the string represented by hLeft_string is
-is greater than hRight_string
+* PRE:
+* hMy_string is the handle of a valid My_string object
+* POST:
+* Returns a copy of the integer value of the object's capacity
 */
+int my_string_get_capacity(MY_STRING hMy_string);
 
-int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string);
+//Precondition: hMy_string is the handle to a valid My_string object.
+//Postcondition: Returns an enumerated type with value TRUE if the string
+// is empty and FALSE otherwise.
+Boolean my_string_empty(MY_STRING hMy_string);
 
+//Precondition: hMy_string is the handle to a valid My_string object.
+//Postcondition: Returns the address of the character located at the given
+// index if the index is in bounds but otherwise returns NULL. This address
+// is not usable as a c-string since the data is not NULL terminated and is
+// intended to just provide access to the element at that index.
+char* my_string_at(MY_STRING hMy_string, int index);
+
+//Precondition: hMy_string is the handle to a valid My_string object.
+//Postcondition: Returns the address of the first element of the string object
+// for use as a c-string. The resulting c-string is guaranteed to be NULL
+// terminated and the memory is still maintained by the string object though
+// the NULL is not actually counted as part of the string (in size).
+char* my_string_c_str(MY_STRING hMy_string);
 
 /*
 PRE:
@@ -117,34 +120,25 @@ Returns SUCCESS if write is successful, otherwise FAILURE
 */
 Status my_string_insertion(MY_STRING hMy_string, FILE* fp);
 
-//Precondition: hMy_string is the handle to a valid My_string object.
-//Postcondition: If successful, places the character item at the end of the
-// string and returns SUCCESS. If the string does not have enough room and
-// cannot resize to accomodate the new character then the operation fails
-// and FAILURE is returned. The resize operation will attempt to amortize
-// the cost of a resize by making the string capacity somewhat larger than
-// it was before (up to 2 times bigger).
-Status my_string_push_back(MY_STRING hMy_string, char item);
+/*
+PRE:
+hLeft_string and hRight_string are valid My_string objects
+POST:
+Consider than a string is considered "less than" if it is lexicographically
+smaller than the string it's compared to. If one string is a prefix
+of the other string then the shorter String is considered to be
+the smaller one (e.g. app is less than apple).
+RETURN:
+Case 1. Returns an integer less than zero if the string represented by hLeft_string
+is smaller than hRight_string.
 
-//Precondition: hMy_string is the handle to a valid My_string object.
-//Postcondition: Removes the last character of a string in constant time.
-// Guaranteed to not cause a resize operation of the internal data. Returns
-// SUCCESS on success and FAILURE if the string is empty.
-Status my_string_pop_back(MY_STRING hMy_string);
+Case 2. Returns 0 if the strings are the same
 
-//Precondition: hMy_string is the handle to a valid My_string object.
-//Postcondition: Returns the address of the character located at the given
-// index if the index is in bounds but otherwise returns NULL. This address
-// is not usable as a c-string since the data is not NULL terminated and is
-// intended to just provide access to the element at that index.
-char* my_string_at(MY_STRING hMy_string, int index);
+Case 3. Returns a integer greater than zero if the string represented by hLeft_string is
+is greater than hRight_string
+*/
 
-//Precondition: hMy_string is the handle to a valid My_string object.
-//Postcondition: Returns the address of the first element of the string object
-// for use as a c-string. The resulting c-string is guaranteed to be NULL
-// terminated and the memory is still maintained by the string object though
-// the NULL is not actually counted as part of the string (in size).
-char* my_string_c_str(MY_STRING hMy_string);
+int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string);
 
 //Precondition: hResult and hAppend are handles to valid My_string objects.
 //Postcondition: hResult is the handle of a string that contains the original
@@ -156,7 +150,25 @@ char* my_string_c_str(MY_STRING hMy_string);
 // string should be made.
 Status my_string_concat(MY_STRING hResult, MY_STRING hAppend);
 
-//Precondition: hMy_string is the handle to a valid My_string object.
-//Postcondition: Returns an enumerated type with value TRUE if the string
-// is empty and FALSE otherwise.
-Boolean my_string_empty(MY_STRING hMy_string);
+/*
+PRE:
+phMy_string holds the address of a valid handle to a MY_STRING object
+POST:
+The memory used for the MY_STRING object has been reclaimed by the system
+The handle referred to by the pointer phMy_string has bee set to NULL
+*/
+void my_string_destroy(Item *pItem);
+
+//Precondition: pLeft is the address of a MY_STRING handle
+// containing a valid MY_STRING object address OR NULL.
+// The value of Right must be the handle of a valid MY_STRING object
+//Postcondition: On Success pLeft will contain the address of a handle
+// to a valid MY_STRING object that is a deep copy of the object indicated
+// by Right. If the value of the handle at the address indicated by
+// pLeft is originally NULL then the function will attempt to initialize
+// a new object that is a deep copy of the object indicated by Right,
+// otherwise the object indicated by the handle at the address pLeft will
+// attempt to resize to hold the data in Right. On failure pLeft will be
+// left as NULL and any memory that may have been used by a potential
+// object indicated by pLeft will be returned to the freestore.
+void my_string_assignment(Item* pLeft, Item Right);

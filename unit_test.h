@@ -51,4 +51,9 @@ Status test_apereira_empty_success_case(char *buffer, int length);
 
 // normal user use case, multiple functions
 Status test_apereira_compare_success_with_init_default_and_init_c_str(char *buffer, int length);
+
+// LAB 6 - assignment and destory funcs
+Status test_my_string_assignment_and_destroy(char *buffer, int length);
+
 #endif
+

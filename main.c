@@ -3,6 +3,13 @@
 #include "./my_string.h"
 /*
 int main(int argc, char* argv[]) {
+	MY_STRING hMy_string1 = NULL;
+	MY_STRING hMy_string2 = NULL;
+	hMy_string1 = my_string_init_c_string("left");
+	hMy_string2 = my_string_init_c_string("rightrightrightrightrightrightrightrightrightright");
+
+	my_string_assignment(&hMy_string1, hMy_string2);
+
 	return 0;
 }
 */
