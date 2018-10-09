@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include "my_string.h"
 
+
 struct my_string
 {
 	int size;
@@ -70,9 +71,6 @@ MY_STRING my_string_init_c_string(const char *c_string)
 			pMy_string->data[i] = c_string[i];
 		}
 	}
-
-	printf("My string: %s, size: %d, capacity: %d\n", pMy_string->data, pMy_string->size, pMy_string->capacity);
-	printf("\n");
 	return pMy_string;
 }
 
@@ -106,13 +104,16 @@ int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string)
 
 		if (left_string_data[i] == right_string_data[i])
 		{
+			// Since we've made it this far, all chars are the same so far. 
+			// if next current index + 1 == size of left str but not size of right str, 
+			// left str is shorter. 
 			if ((i + 1 == left_string_size) && (i + 1 != right_string_size))
 			{
 				return -1;
 			}
 			else if ((i + 1 != left_string_size) && (i + 1 == right_string_size))
 			{
-				return -1;
+				return 1;
 			}
 			else
 			{
@@ -225,6 +226,11 @@ Status my_string_insertion(MY_STRING hMy_string, FILE *fp)
 Status my_string_push_back(MY_STRING hMy_string, char item) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
+	// handle non alpha character
+	if (item < 65 || (item > 90 && item < 97) || item > 122) {
+		return FAILURE;
+	}
+
 	// handle case where no room is available in the string
 	if (pMy_string->size + 1 == pMy_string->capacity)
 	{
@@ -274,7 +280,7 @@ char* my_string_at(MY_STRING hMy_string, int index) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
 	if (index < 0 || index >= pMy_string->size) {
-		return FAILURE;
+		return NULL;
 	}
 	else {
 		char* pChar = pMy_string->data + index;
@@ -286,7 +292,7 @@ char* my_string_c_str(MY_STRING hMy_string) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
 	if (pMy_string->size == 0) {
-		return FAILURE;
+		return NULL;
 	}
 	else {
 		pMy_string->data[pMy_string->size] = '\0';

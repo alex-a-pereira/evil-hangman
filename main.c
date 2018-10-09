@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "./my_string.h"
-
+/*
 int main(int argc, char* argv[]) {
 	return 0;
 }
-
+*/
 // LAB 3
 // MY_STRING hMy_string = NULL;
 // FILE* fp;
