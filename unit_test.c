@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "unit_test.h"
-
+/*
 int main(int argc, char* argv[])
 {
 	Status(*tests[])(char*, int) =
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	
 	return 0;
 }
-
+*/
 /* LAB 5
 test_init_default_returns_nonNULL,
 test_get_size_on_init_default_returns_0,

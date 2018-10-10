@@ -1,3 +1,5 @@
+#ifndef MY_STRING_H
+#define MY_STRING_H
 #include "status.h"
 #include "boolean.h"
 #include "generic.h"
@@ -172,3 +174,4 @@ void my_string_destroy(Item *pItem);
 // left as NULL and any memory that may have been used by a potential
 // object indicated by pLeft will be returned to the freestore.
 void my_string_assignment(Item* pLeft, Item Right);
+#endif

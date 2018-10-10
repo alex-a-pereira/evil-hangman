@@ -1,18 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "./my_string.h"
-/*
-int main(int argc, char* argv[]) {
-	MY_STRING hMy_string1 = NULL;
-	MY_STRING hMy_string2 = NULL;
-	hMy_string1 = my_string_init_c_string("left");
-	hMy_string2 = my_string_init_c_string("rightrightrightrightrightrightrightrightrightright");
+#include "my_string.h"
+#include "vector.h"
 
-	my_string_assignment(&hMy_string1, hMy_string2);
+int main(int argc, char* argv[]) {
+	VECTOR hVector = NULL;
+	hVector = vector_init_default();
+
+	MY_STRING hMy_string = NULL;
+	hMy_string = my_string_init_default();
+
+	FILE* fp;
+	fp = fopen("./dictionary.txt", "r");
+	
+	printf("...finding all strings in dict where str size == 22");
+	while (my_string_extraction(hMy_string, fp))
+	{
+		if (my_string_get_size(hMy_string) == 22) {
+			vector_push_back(hVector, hMy_string);
+		}
+	}
+	my_string_destroy(&hMy_string);
+	
+	int vector_size = vector_get_size(hVector);
+	int vector_cap = vector_get_capacity(hVector);
+	printf("\n\nfinal vector... size = %d, cap = %d\n\nContents are:\n", vector_size, vector_cap);
+
+	MY_STRING my_string_result = NULL;
+	for (int i = 0; i < vector_size; i++) {
+		my_string_result = vector_at(hVector, i);
+		char * c_str = my_string_c_str(my_string_result);
+		printf("%s\t", c_str);
+	}
+	vector_destroy(&hVector);
+	fclose(fp);
 
 	return 0;
 }
-*/
+
 // LAB 3
 // MY_STRING hMy_string = NULL;
 // FILE* fp;
