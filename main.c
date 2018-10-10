@@ -3,25 +3,105 @@
 #include "my_string.h"
 #include "vector.h"
 
+int word_length_input(void);
+int num_guesses_input(void);
+
+VECTOR read_words_from_dict(int length, FILE* fp);
+
 int main(int argc, char* argv[]) {
+	int word_length;
+	int num_guesses;
+	int vector_size;
+	VECTOR hVector;
+	FILE *fp;
+	
+	word_length = word_length_input();
+	fp = fopen("./dictionary.txt", "r");
+	hVector = read_words_from_dict(word_length, fp);
+
+	// handle exception when no words of given length exist
+	vector_size = vector_get_size(hVector);
+	while (vector_size == 0) {
+		printf("I'm sorry, no words of length %d exist in the English dictionary. Please choose another length between 1 and 29.\n", vector_size);
+		vector_destroy(&hVector);		
+		word_length = word_length_input();
+		hVector = read_words_from_dict(word_length, fp);
+		vector_size = vector_get_size(hVector);
+	}
+
+	num_guesses = num_guesses_input();
+
+
+	printf("\nSTART GAME!\n\n");
+	while (num_guesses != 0) {
+		printf("You have %d guesses left.\n", num_guesses);
+		printf("Used letters: @\n");
+		printf("Word: -------");
+
+		printf("\n\n");
+		num_guesses--;
+	}
+
+
+	
+
+	return 0;
+}
+
+int word_length_input(void)
+{
+	int input, numOfConversions;
+	printf("What length word do you want to play with? Enter an integer between 1 and 29: ");
+	numOfConversions = scanf("%d", &input);
+
+	while (numOfConversions == 0 || input < 1 || input > 29)
+	{
+		char ch;
+		scanf("%c", &ch);
+		while (ch != '\n')
+			scanf("%c", &ch);
+
+		printf("I'm sorry, please enter an integer between 0 and 29: ");
+		numOfConversions = scanf("%d", &input);
+	}
+	return input;
+}
+
+int num_guesses_input(void) {
+	int input, numOfConversions;
+	printf("How many guesses would you like to have? Enter a positive integer: ");
+	numOfConversions = scanf("%d", &input);
+
+	while (numOfConversions == 0 || input < 1)
+	{
+		char ch;
+		scanf("%c", &ch);
+		while (ch != '\n') {
+			scanf("%c", &ch);
+		}
+
+		printf("I'm sorry, please enter an integer greater than 1: ");
+		numOfConversions = scanf("%d", &input);
+	}
+	return input;
+}
+
+VECTOR read_words_from_dict(int length, FILE* fp) {
 	VECTOR hVector = NULL;
 	hVector = vector_init_default();
 
 	MY_STRING hMy_string = NULL;
 	hMy_string = my_string_init_default();
 
-	FILE* fp;
-	fp = fopen("./dictionary.txt", "r");
-	
-	printf("...finding all strings in dict where str size == 22");
+	printf("...finding all strings in dict where str size == %d", length);
 	while (my_string_extraction(hMy_string, fp))
 	{
-		if (my_string_get_size(hMy_string) == 22) {
+		if (my_string_get_size(hMy_string) == length) {
 			vector_push_back(hVector, hMy_string);
 		}
 	}
 	my_string_destroy(&hMy_string);
-	
+
 	int vector_size = vector_get_size(hVector);
 	int vector_cap = vector_get_capacity(hVector);
 	printf("\n\nfinal vector... size = %d, cap = %d\n\nContents are:\n", vector_size, vector_cap);
@@ -32,10 +112,8 @@ int main(int argc, char* argv[]) {
 		char * c_str = my_string_c_str(my_string_result);
 		printf("%s\t", c_str);
 	}
-	vector_destroy(&hVector);
 	fclose(fp);
-
-	return 0;
+	return hVector;
 }
 
 // LAB 3
@@ -157,3 +235,39 @@ int main(int argc, char* argv[]) {
 // my_string_destroy(&hMy_string2);
 //
 // return 0;
+
+/*
+Lab 7 VECTOR
+VECTOR hVector = NULL;
+hVector = vector_init_default();
+
+MY_STRING hMy_string = NULL;
+hMy_string = my_string_init_default();
+
+FILE* fp;
+fp = fopen("./dictionary.txt", "r");
+
+printf("...finding all strings in dict where str size == 22");
+while (my_string_extraction(hMy_string, fp))
+{
+	if (my_string_get_size(hMy_string) == 22) {
+		vector_push_back(hVector, hMy_string);
+	}
+}
+my_string_destroy(&hMy_string);
+
+int vector_size = vector_get_size(hVector);
+int vector_cap = vector_get_capacity(hVector);
+printf("\n\nfinal vector... size = %d, cap = %d\n\nContents are:\n", vector_size, vector_cap);
+
+MY_STRING my_string_result = NULL;
+for (int i = 0; i < vector_size; i++) {
+	my_string_result = vector_at(hVector, i);
+	char * c_str = my_string_c_str(my_string_result);
+	printf("%s\t", c_str);
+}
+vector_destroy(&hVector);
+fclose(fp);
+
+return 0;
+*/
