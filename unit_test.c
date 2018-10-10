@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "unit_test.h"
-/*
+
 int main(int argc, char* argv[])
 {
 	Status(*tests[])(char*, int) =
 	{
-		test_my_string_assignment_and_destroy
+    test_my_string_assignment_and_destroy
 	};
 	int number_of_functions = sizeof(tests) / sizeof(tests[0]);
 	int i;
@@ -30,10 +30,10 @@ int main(int argc, char* argv[])
 	printf("\nTotal number of tests: %d\n", number_of_functions);
 	printf("%d/%d Pass, %d/%d Failure\n", success_count,
 		number_of_functions, failure_count, number_of_functions);
-	
+
 	return 0;
 }
-*/
+
 /* LAB 5
 test_init_default_returns_nonNULL,
 test_get_size_on_init_default_returns_0,
@@ -60,4 +60,8 @@ test_apereira_concat_success_case,
 test_apereira_empty_failure_case,
 test_apereira_empty_success_case,
 test_apereira_compare_success_with_init_default_and_init_c_str
+*/
+
+/* Lab 6
+
 */
