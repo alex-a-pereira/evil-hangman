@@ -41,7 +41,7 @@ Status vector_push_back(VECTOR hVector, Item hItem) {
 		if (temp_arr == NULL) {
 			return FAILURE;
 		}
-		
+
 		for (i = 0; i < pVector->capacity; i++) {
 			temp_arr[i] = pVector->data[i];
 		}
@@ -91,6 +91,13 @@ MY_STRING vector_at(VECTOR hVector, int index) {
 
 void vector_destroy(VECTOR* phVector) {
 	Vector* pVector = (Vector*)*phVector;
+
+	if (pVector->size != 0) {
+		for (int i = 0; i < pVector->size; i++) {
+			my_string_destroy(&pVector->data[i]);
+		}
+	}
+
 	free(pVector->data);
 	free(pVector);
 	*phVector = NULL;

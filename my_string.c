@@ -284,9 +284,9 @@ int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string)
 
 		if (left_string_data[i] == right_string_data[i])
 		{
-			// Since we've made it this far, all chars are the same so far. 
-			// if next current index + 1 == size of left str but not size of right str, 
-			// left str is shorter. 
+			// Since we've made it this far, all chars are the same so far.
+			// if next current index + 1 == size of left str but not size of right str,
+			// left str is shorter.
 			if ((i + 1 == left_string_size) && (i + 1 != right_string_size))
 			{
 				return -1;
@@ -349,7 +349,7 @@ void my_string_destroy(Item *pItem)
 void my_string_assignment(Item* pLeft, Item Right) {
 	// cast Item Right to have My_string typing
 	My_string *pMy_string_right = (My_string *)Right;
-	
+
 	// if object in address held by pLeft is NULL
 	// create a new my_string , then deep copy Right into it
 	if (*pLeft == NULL) {
@@ -378,11 +378,11 @@ void my_string_assignment(Item* pLeft, Item Right) {
 	// else deep copy Right into *pLeft, freeing and resizing if necessary
 	else {
 		My_string *pMy_string_left = (My_string *)*pLeft;
-		
+
 		// only free and reallocate memory if capacities differ
 		if (pMy_string_left->capacity != pMy_string_right->capacity) {
 			free(pMy_string_left->data);
-			
+
 			pMy_string_left->size = pMy_string_right->size;
 			pMy_string_left->capacity = pMy_string_right->capacity;
 			pMy_string_left->data = (char *)malloc(sizeof(char) * pMy_string_left->capacity);
@@ -395,7 +395,7 @@ void my_string_assignment(Item* pLeft, Item Right) {
 		}
 		else {
 			pMy_string_left->size = pMy_string_right->size;
-			
+
 			for (int i = 0; i < pMy_string_left->size; i++) {
 				pMy_string_left->data[i] = pMy_string_right->data[i];
 			}

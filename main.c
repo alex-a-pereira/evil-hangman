@@ -116,50 +116,48 @@ VECTOR read_words_from_dict(int length) {
 	return hVector;
 }
 
-// LAB 7 part 1
 /*
-VECTOR* vector_array[29] = { NULL };
+// LAB 7 part 1, WORKS NO MEM LEAKS!!!
+int main(int argc, char *argv[]) {
+	VECTOR* vector_array[29] = { NULL };
 
-MY_STRING hMy_string = NULL;
-hMy_string = my_string_init_default();
+	MY_STRING hMy_string = NULL;
+	hMy_string = my_string_init_default();
 
-FILE* fp;
-fp = fopen("./dictionary.txt", "r");
+	FILE* fp;
+	fp = fopen("./dictionary.txt", "r");
 
 
-for (int i = 0; i < 29; i++) {
-VECTOR hVector = NULL;
-hVector = vector_init_default();
-vector_array[i] = hVector;
+	for (int i = 0; i < 29; i++) {
+		VECTOR hVector = NULL;
+		hVector = vector_init_default();
+		vector_array[i] = hVector;
+	}
+
+	while (my_string_extraction(hMy_string, fp))
+	{
+		int string_size = my_string_get_size(hMy_string);
+		vector_push_back(vector_array[string_size - 1], hMy_string);
+	}
+
+	my_string_destroy(&hMy_string);
+	fclose(fp);
+
+	for (int i = 0; i < 29; i++) {
+		int vector_size;
+
+		vector_size = vector_get_size(vector_array[i]);
+
+		printf("%d words with %d characters in them\n", vector_size, i + 1);
+	}
+	for (int i = 0; i < 29; i++) {
+		VECTOR *v = &(vector_array[i]);
+		vector_destroy(v);
+	}
+
+	return 0;
 }
-
-while (my_string_extraction(hMy_string, fp))
-{
-int string_size = my_string_get_size(hMy_string);
-vector_push_back(vector_array[string_size - 1], hMy_string);
-}
-
-my_string_destroy(&hMy_string);
-fclose(fp);
-
-
-
-for (int i = 0; i < 29; i++) {
-int vector_size;
-
-vector_size = vector_get_size(vector_array[i]);
-
-printf("%d words with %d characters in them\n", vector_size, i + 1);
-}
-
-for (int i = 0; i < 29; i++) {
-vector_destroy(&vector_array[i]);
-}
-
-return 0;
 */
-
-
 // LAB 3
 // MY_STRING hMy_string = NULL;
 // FILE* fp;
