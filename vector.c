@@ -29,9 +29,9 @@ VECTOR vector_init_default(void) {
 	return pVector;
 }
 
-Status vector_push_back(VECTOR hVector, Item hMy_String) {
+Status vector_push_back(VECTOR hVector, Item hItem) {
 	Vector* pVector = (Vector*)hVector;
-	MY_STRING* pMy_string = (MY_STRING*)hMy_String;
+	MY_STRING* pMy_string = (MY_STRING*)hItem;
 
 	int i;
 	if (pVector->size >= pVector->capacity) {

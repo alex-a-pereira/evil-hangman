@@ -6,7 +6,7 @@ typedef void* VECTOR;
 //init
 VECTOR vector_init_default(void);
 //add item
-Status vector_push_back(VECTOR hVector, Item hMy_String);
+Status vector_push_back(VECTOR hVector, Item hItem);
 //remove item
 Status vector_pop_back(VECTOR);
 //check size and capacity
