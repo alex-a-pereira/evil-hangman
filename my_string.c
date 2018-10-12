@@ -346,7 +346,7 @@ void my_string_destroy(Item *pItem)
 //
 // ASSIGNMENT
 //
-void my_string_assignment(Item* pLeft, Item Right) {
+Status my_string_assignment(Item* pLeft, Item Right) {
 	// cast Item Right to have My_string typing
 	My_string *pMy_string_right = (My_string *)Right;
 
@@ -401,4 +401,5 @@ void my_string_assignment(Item* pLeft, Item Right) {
 			}
 		}
 	}
+	return SUCCESS;
 }

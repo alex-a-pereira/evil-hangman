@@ -2,19 +2,18 @@
 #define VECTOR_H
 #include "my_string.h"
 
-typedef void* VECTOR;
+typedef void* GEN_VECTOR;
 //init
-VECTOR vector_init_default(void);
+GEN_VECTOR gen_vector_init_default(Status(*item_assignment)(Item*, Item), void(*item_destroy)(Item*));
 //add item
-Status vector_push_back(VECTOR hVector, Item hItem);
+Status gen_vector_push_back(GEN_VECTOR hVector, Item hItem);
 //remove item
-Status vector_pop_back(VECTOR);
+//Status vector_pop_back(GEN_VECTOR);
 //check size and capacity
-int vector_get_size(VECTOR);
-int vector_get_capacity(VECTOR);
+int gen_vector_get_size(GEN_VECTOR);
+int gen_vector_get_capacity(GEN_VECTOR);
 // see the particular item
-MY_STRING vector_at(VECTOR hVector, int index);
+Item gen_vector_at(GEN_VECTOR hVector, int index);
 
-//destroy
-void vector_destroy(VECTOR*);
+void gen_vector_destroy(GEN_VECTOR*);
 #endif

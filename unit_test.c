@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include "unit_test.h"
-int main(int argc, char* argv[])
+int main1(int argc, char* argv[])
 {
 	Status(*tests[])(char*, int) =
 	{

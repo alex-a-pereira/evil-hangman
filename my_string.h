@@ -173,5 +173,5 @@ void my_string_destroy(Item *pItem);
 // attempt to resize to hold the data in Right. On failure pLeft will be
 // left as NULL and any memory that may have been used by a potential
 // object indicated by pLeft will be returned to the freestore.
-void my_string_assignment(Item* pLeft, Item Right);
+Status my_string_assignment(Item* pLeft, Item Right);
 #endif

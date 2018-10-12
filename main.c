@@ -5,7 +5,15 @@
 
 int word_length_input(void);
 int num_guesses_input(void);
-VECTOR read_words_from_dict(int length);
+void read_words_from_dict(GEN_VECTOR hVector, int length);
+
+//Precondition:current_word_family, new_key and word are all handles to valid
+// MY_STRING opaque objects. guess is an alphabetical character that can be either
+// upper or lower case.
+//Postcondition: Returns SUCCESS after replacing the string in new_key with the key
+// value formed by considering the current word family, the word and the guess.
+// Returns failure in the case of a resizing problem with the new_key string.
+Status get_word_key_value(MY_STRING current_word_family, MY_STRING new_key, MY_STRING word, char guess);
 
 
 int main(int argc, char* argv[]) {
@@ -13,20 +21,24 @@ int main(int argc, char* argv[]) {
 	int word_length;
 	int num_guesses;
 	int vector_size;
-	VECTOR hVector;
-	FILE *fp;
-	word_length = word_length_input();
-	fp = fopen("./dictionary.txt", "r");
-	hVector = read_words_from_dict(word_length);
+	GEN_VECTOR hVector_words;
+	
+	FILE *fp = fopen("./dictionary.txt", "r");
 
+	word_length = word_length_input();
+	
+	hVector_words = gen_vector_init_default(my_string_assignment, my_string_destroy);
+	// read words of 'word_length' in hVector_words
+	read_words_from_dict(hVector_words, word_length);
+	
 	// handle exception when no words of given length exist
-	vector_size = vector_get_size(hVector);
+	vector_size = gen_vector_get_size(hVector_words);
 	while (vector_size == 0) {
-		printf("I'm sorry, no words of length %d exist in the English dictionary. Please choose another length between 1 and 29.\n", vector_size);
-		vector_destroy(&hVector);
+		printf("No words of length %d exist, choose another length between 1 and 29.\n", vector_size);
+		gen_vector_destroy(&hVector_words);
 		word_length = word_length_input();
-		hVector = read_words_from_dict(word_length);
-		vector_size = vector_get_size(hVector);
+		hVector_words = gen_vector_init_default(my_string_assignment, my_string_destroy);
+		vector_size = gen_vector_get_size(hVector_words);
 	}
 
 	num_guesses = num_guesses_input();
@@ -42,7 +54,9 @@ int main(int argc, char* argv[]) {
 		num_guesses--;
 	}
 
+	gen_vector_destroy(&hVector_words);
 
+	return 0;
 }
 
 
@@ -84,37 +98,37 @@ int num_guesses_input(void) {
 	return input;
 }
 
-VECTOR read_words_from_dict(int length) {
-	VECTOR hVector = NULL;
-	hVector = vector_init_default();
-
+void read_words_from_dict(GEN_VECTOR hVector, int length) {
 	MY_STRING hMy_string = NULL;
 	hMy_string = my_string_init_default();
 
 	FILE *fp = fopen("./dictionary.txt", "r");
 
-	printf("...finding all strings in dict where str size == %d", length);
+	printf("...finding all strings in dict where str size == %d\n", length);
 	while (my_string_extraction(hMy_string, fp))
 	{
 		if (my_string_get_size(hMy_string) == length) {
-			vector_push_back(hVector, hMy_string);
+			gen_vector_push_back(hVector, hMy_string);
 		}
 	}
 	my_string_destroy(&hMy_string);
 
-	int vector_size = vector_get_size(hVector);
-	int vector_cap = vector_get_capacity(hVector);
-	printf("\n\nfinal vector... size = %d, cap = %d\n\nContents are:\n", vector_size, vector_cap);
-
+	int vector_size = gen_vector_get_size(hVector);
+	
 	MY_STRING my_string_result = NULL;
 	for (int i = 0; i < vector_size; i++) {
-		my_string_result = vector_at(hVector, i);
+		my_string_result = gen_vector_at(hVector, i);
 		char * c_str = my_string_c_str(my_string_result);
 		printf("%s\t", c_str);
 	}
+	printf("\n");
 	fclose(fp);
-	return hVector;
 }
+
+Status get_word_key_value(MY_STRING current_word_family, MY_STRING new_key, MY_STRING word, char guess) {
+
+}
+
 
 /*
 // LAB 7 part 1, WORKS NO MEM LEAKS!!!
