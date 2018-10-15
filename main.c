@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "my_string.h"
 #include "vector.h"
-#include "assoc_arr.h"
 
 // const DASH is treated as a 'wildcard' character
 // a wildcard is any character that has not been guess yet
@@ -10,16 +9,8 @@ const char DASH = '-';
 
 int word_length_input(void);
 int num_guesses_input(void);
+char guess_char_input(void);
 void read_words_from_dict(GEN_VECTOR hVector, int length);
-
-//Precondition:current_word_family, new_key and word are all handles to valid
-// MY_STRING opaque objects. guess is an alphabetical character that can be either
-// upper or lower case.
-//Postcondition: Returns SUCCESS after replacing the string in new_key with the key
-// value formed by considering the current word family, the word and the guess.
-// Returns failure in the case of a resizing problem with the new_key string.
-Status get_word_key_value(MY_STRING current_word_family, MY_STRING new_key, MY_STRING word, char guess);
-
 
 int main(int argc, char* argv[]) {
 
@@ -29,14 +20,12 @@ int main(int argc, char* argv[]) {
 	MY_STRING hCurrent_WF_key;
 	GEN_VECTOR hVector_word_bank;
 
-	FILE *fp = fopen("./dictionary.txt", "r");
-
 	//word_length = word_length_input();
 	word_length = 2;
 	hVector_word_bank = gen_vector_init_default(my_string_assignment, my_string_destroy);
 	// read words of 'word_length' in hVector_words
 	read_words_from_dict(hVector_word_bank, word_length);
-	
+
 	// handle exception when no words of given length exist
 	vector_size = gen_vector_get_size(hVector_word_bank);
 	while (vector_size == 0) {
@@ -53,14 +42,14 @@ int main(int argc, char* argv[]) {
 		my_string_push_back(hCurrent_WF_key, DASH);
 	}
 
-	//num_guesses = num_guesses_input();
-	num_guesses = 20;
+	num_guesses = num_guesses_input();
+
 	printf("\nSTART GAME!\n\n");
-	
+
 	while (num_guesses != 0) {
 		printf("You have %d guesses left.\n", num_guesses);
 
-		char guess = 'a';
+		char guess = guess_char_input();
 
 		GEN_VECTOR wf_words = gen_vector_init_default(gen_vector_assignment, gen_vector_destroy);
 		GEN_VECTOR wf_keys = gen_vector_init_default(my_string_assignment, my_string_destroy);
@@ -74,7 +63,7 @@ int main(int argc, char* argv[]) {
 			for (int j = 0; j < word_length; j++) {
 				char char_in_current_key = *my_string_at(hCurrent_WF_key, j);
 				char char_in_current_word = *my_string_at(current_word, j);
-				// when a char in the current key is not a dash, the user has successfully 
+				// when a char in the current key is not a dash, the user has successfully
 				// guessed this character before. So, make sure it's in the new key.
 				if (char_in_current_key != DASH) {
 					my_string_push_back(temp_key, char_in_current_key);
@@ -87,7 +76,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 			printf("iter: %d num WF's: %d\nCurrent WF: %s\n\n", i, gen_vector_get_size(wf_words), my_string_c_str(temp_key));
-			// if there's a match between the current word's key and a key 
+			// if there's a match between the current word's key and a key
 			// existing in wf_keys, append the corresponsing vector in wf_words
 			int match_exists = FALSE;
 			for (int j = 0; j < gen_vector_get_size(wf_keys); j++) {
@@ -123,19 +112,13 @@ int main(int argc, char* argv[]) {
 		}
 		printf("selecting wf with largest popuilation:");
 
-
-
 		printf("\n\n");
 		num_guesses--;
 	}
 
-
-
-
 	gen_vector_destroy(&hVector_word_bank);
 	return 0;
 }
-
 
 int word_length_input(void)
 {
@@ -175,6 +158,35 @@ int num_guesses_input(void) {
 	return input;
 }
 
+char guess_char_input(void) {
+	int numOfConversions;
+	char input;
+	printf("Guess a character by entering a character a-z: ");
+
+	numOfConversions = scanf("%c", &input);
+
+	if (input < 97 ) {
+		input += 32;
+	}
+
+	while (numOfConversions == 0 || input < 97 || input > 122)
+	{
+		char ch;
+		scanf("%c", &ch);
+		while (ch != '\n') {
+			scanf("%c", &ch);
+		}
+
+		printf("Guess a character by entering a character a-z: ");
+		numOfConversions = scanf("%c", &input);
+
+		if (input < 97 ) {
+			input += 32;
+		}
+	}
+	return input;
+	}
+
 void read_words_from_dict(GEN_VECTOR hVector, int length) {
 	MY_STRING hMy_string = NULL;
 	hMy_string = my_string_init_default();
@@ -191,7 +203,7 @@ void read_words_from_dict(GEN_VECTOR hVector, int length) {
 	my_string_destroy(&hMy_string);
 
 	int vector_size = gen_vector_get_size(hVector);
-	
+
 	MY_STRING my_string_result = NULL;
 	for (int i = 0; i < vector_size; i++) {
 		my_string_result = gen_vector_at(hVector, i);
@@ -201,184 +213,3 @@ void read_words_from_dict(GEN_VECTOR hVector, int length) {
 	printf("\n");
 	fclose(fp);
 }
-
-Status get_word_key_value(MY_STRING current_word_family, MY_STRING new_key, MY_STRING word, char guess) {
-
-}
-
-
-/*
-// LAB 7 part 1, WORKS NO MEM LEAKS!!!
-int main(int argc, char *argv[]) {
-	VECTOR* vector_array[29] = { NULL };
-
-	MY_STRING hMy_string = NULL;
-	hMy_string = my_string_init_default();
-
-	FILE* fp;
-	fp = fopen("./dictionary.txt", "r");
-
-
-	for (int i = 0; i < 29; i++) {
-		VECTOR hVector = NULL;
-		hVector = vector_init_default();
-		vector_array[i] = hVector;
-	}
-
-	while (my_string_extraction(hMy_string, fp))
-	{
-		int string_size = my_string_get_size(hMy_string);
-		vector_push_back(vector_array[string_size - 1], hMy_string);
-	}
-
-	my_string_destroy(&hMy_string);
-	fclose(fp);
-
-	for (int i = 0; i < 29; i++) {
-		int vector_size;
-
-		vector_size = vector_get_size(vector_array[i]);
-
-		printf("%d words with %d characters in them\n", vector_size, i + 1);
-	}
-	for (int i = 0; i < 29; i++) {
-		VECTOR *v = &(vector_array[i]);
-		vector_destroy(v);
-	}
-
-	return 0;
-}
-*/
-// LAB 3
-// MY_STRING hMy_string = NULL;
-// FILE* fp;
-// hMy_string = my_string_init_default();
-//
-// fp = fopen("./dictionary.txt", "r");
-// while (my_string_extraction(hMy_string, fp))
-// {
-// 	if (my_string_get_size(hMy_string) == 29) {
-// 		my_string_insertion(hMy_string, stdout);
-// 		if (fgetc(fp) == ' ')
-// 		{
-// 			printf("Found a space after the string\n");
-// 		}
-// 	}
-// }
-//
-// my_string_destroy(&hMy_string);
-// fclose(fp);
-// return 0;
-
-// Lab 4
-// MY_STRING hMy_string1 = NULL;
-// hMy_string1 = my_string_init_default();
-//
-// MY_STRING hMy_string2 = NULL;
-// hMy_string2 = my_string_init_default();
-//
-// printf("my_string_1 is empty? %d\n", my_string_empty(hMy_string1));
-// printf("my_string_2 is empty? %d\n", my_string_empty(hMy_string2));
-//
-// printf("\nInit strings (blanks should print because no data is in either strings)\n");
-// my_string_insertion(hMy_string1, stdout);
-// my_string_insertion(hMy_string2, stdout);
-//
-// printf("\nPush back chars to each string\n");
-// my_string_push_back(hMy_string1, 'a');
-// my_string_push_back(hMy_string2, 'x');
-// my_string_insertion(hMy_string1, stdout);
-// my_string_insertion(hMy_string2, stdout);
-// printf("\n");
-// my_string_push_back(hMy_string1, 'b');
-// my_string_push_back(hMy_string2, 'y');
-// my_string_insertion(hMy_string1, stdout);
-// my_string_insertion(hMy_string2, stdout);
-// printf("\n");
-// my_string_push_back(hMy_string1, 'c');
-// my_string_push_back(hMy_string2, 'z');
-// my_string_insertion(hMy_string1, stdout);
-// my_string_insertion(hMy_string2, stdout);
-//
-// printf("check if empty after after push_backs:\n");
-// printf("my_string_1 is empty? %d\n", my_string_empty(hMy_string1));
-// printf("my_string_2 is empty? %d\n", my_string_empty(hMy_string2));
-//
-// printf("\nPop back all chars from hMy_string2 (last line should be blank bc no chars)\n");
-// my_string_insertion(hMy_string2, stdout);
-// my_string_pop_back(hMy_string2);
-// my_string_insertion(hMy_string2, stdout);
-// my_string_pop_back(hMy_string2);
-// my_string_insertion(hMy_string2, stdout);
-// my_string_pop_back(hMy_string2);
-// my_string_insertion(hMy_string2, stdout);
-// printf("\nPush back one char to hMy_string2\n");
-// my_string_push_back(hMy_string2, 'x');
-// my_string_insertion(hMy_string2, stdout);
-//
-// printf("\nConcat hMy_string2 into hMy_string1\n");
-// my_string_concat(hMy_string1, hMy_string2);
-// my_string_insertion(hMy_string1, stdout);
-// printf("\nRepeat concat until hMy_string1 is full (default capacity of 7)\n");
-// my_string_concat(hMy_string1, hMy_string2);
-// my_string_insertion(hMy_string1, stdout);
-// my_string_concat(hMy_string1, hMy_string2);
-// my_string_insertion(hMy_string1, stdout);
-// my_string_concat(hMy_string1, hMy_string2);
-// my_string_insertion(hMy_string1, stdout);
-//
-// printf("\nTest print of char w/ my_string_at(hMy_string1)\n");
-// char* my_c_string = my_string_c_str(hMy_string1);
-// printf("my_c_string: %s\n", my_c_string);
-//
-// char* ch = my_string_at(hMy_string1, 4);
-// printf("character at index 4: %c\n", *ch);
-// ch = my_string_at(hMy_string1, 0);
-// printf("character at index 0: %c\n", *ch);
-//
-// printf("Testing to see if the array capacity will double if pushback exceeds capacity");
-// int pre_test_size = my_string_get_size(hMy_string1);
-// int pre_test_capacity = my_string_get_capacity(hMy_string1);
-// printf("pre_test_c_string: %s, pre size = %d, pre capacity = %d\n", my_c_string, pre_test_size, pre_test_capacity);
-// my_string_push_back(hMy_string1, '1');
-//
-// char* test_c_string = my_string_c_str(hMy_string1);
-// int test_size = my_string_get_size(hMy_string1);
-// int test_capacity = my_string_get_capacity(hMy_string1);
-// printf("test_c_string: %s, new size = %d, new capacity = %d\n", test_c_string, test_size, test_capacity);
-//
-// printf("\nTry again\n");
-// my_string_push_back(hMy_string1, '2');
-// my_string_push_back(hMy_string1, '3');
-// my_string_push_back(hMy_string1, '4');
-// my_string_push_back(hMy_string1, '5');
-// my_string_push_back(hMy_string1, '6');
-// test_c_string = my_string_c_str(hMy_string1);
-// test_size = my_string_get_size(hMy_string1);
-// test_capacity = my_string_get_capacity(hMy_string1);
-// printf("test_c_string: %s, new size = %d, new capacity = %d\n", test_c_string, test_size, test_capacity);
-//
-// my_string_push_back(hMy_string1, '7');
-// test_c_string = my_string_c_str(hMy_string1);
-// test_size = my_string_get_size(hMy_string1);
-// test_capacity = my_string_get_capacity(hMy_string1);
-// printf("test_c_string: %s, new size = %d, new capacity = %d\n", test_c_string, test_size, test_capacity);
-//
-// my_string_destroy(&hMy_string1);
-// my_string_destroy(&hMy_string2);
-//
-// return 0;
-
-
-/*
-GAME!!!!
-GAME!!!!
-GAME!!!!
-GAME!!!!
-GAME!!!!
-
-GAME!!!!
-
-
-return 0;
-*/
