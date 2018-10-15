@@ -72,13 +72,8 @@ MY_STRING my_string_init_c_string(const char *c_string)
 Status my_string_push_back(MY_STRING hMy_string, char item) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
-	// handle non alpha character
-	if (item < 65 || (item > 90 && item < 97) || item > 122) {
-		return FAILURE;
-	}
-
 	// handle case where no room is available in the string
-	if (pMy_string->size + 1 == pMy_string->capacity)
+ 	if (pMy_string->size + 1 == pMy_string->capacity)
 	{
 		int old_size = pMy_string->capacity - 1;
 

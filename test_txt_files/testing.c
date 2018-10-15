@@ -62,68 +62,36 @@ int main(int argc, char* argv[]) {
 
 		char guess = 'a';
 
-		GEN_VECTOR wf_words = gen_vector_init_default(gen_vector_assignment, gen_vector_destroy);
-		GEN_VECTOR wf_keys = gen_vector_init_default(my_string_assignment, my_string_destroy);
+		NODE_MY_STR* list_head = NULL;
 
 		// iterate through each my_string that's in the current word bank
 		for (int i = 0; i < gen_vector_get_size(hVector_word_bank); i++) {
 			MY_STRING current_word = gen_vector_at(hVector_word_bank, i);
-			MY_STRING temp_key = my_string_init_default();
-			GEN_VECTOR temp_vector = gen_vector_init_default(my_string_assignment, my_string_destroy);
+			MY_STRING tempKey = my_string_init_default();
 			// determine a word's W/F key. I signifies the character number
 			for (int j = 0; j < word_length; j++) {
 				char char_in_current_key = *my_string_at(hCurrent_WF_key, j);
-				char char_in_current_word = *my_string_at(current_word, j);
 				// when a char in the current key is not a dash, the user has successfully 
 				// guessed this character before. So, make sure it's in the new key.
 				if (char_in_current_key != DASH) {
-					my_string_push_back(temp_key, char_in_current_key);
+					my_string_push_back(tempKey, char_in_current_key);
 				}
-				else if (char_in_current_word == guess) {
-					my_string_push_back(temp_key, guess);
+				else if (char_in_current_key == guess) {
+					my_string_push_back(tempKey, guess);
 				}
 				else {
-					my_string_push_back(temp_key, DASH);
+					my_string_push_back(tempKey, DASH);
 				}
 			}
-			printf("iter: %d num WF's: %d\nCurrent WF: %s\n\n", i, gen_vector_get_size(wf_words), my_string_c_str(temp_key));
-			// if there's a match between the current word's key and a key 
-			// existing in wf_keys, append the corresponsing vector in wf_words
-			int match_exists = FALSE;
-			for (int j = 0; j < gen_vector_get_size(wf_keys); j++) {
-				if (my_string_compare(temp_key, gen_vector_at(wf_keys, j)) == 0) {
-					match_exists = TRUE;
-					GEN_VECTOR double_temp = gen_vector_at(wf_words, j);
-					gen_vector_push_back(double_temp, current_word);
-
-				}
-			}
-			// if there's no match, add a key / value entry into the gen_vectors
-			if (match_exists == FALSE) {
-				// push a new key onto the keys
-				gen_vector_push_back(wf_keys, temp_key);
-				// allocate memory for a new vector and push the current word into it
-				gen_vector_push_back(temp_vector, current_word);
-				// push the temp vector for the WF into the vectors gen vector
-				gen_vector_push_back(wf_words, temp_vector);
-
-			}
-			gen_vector_destroy(&temp_vector);
-			my_string_destroy(&temp_key);
-			my_string_destroy(&current_word);
+			// if a node with a key == tempKey exists, add the current my_string to the 
+			// respective generic vector held within that node. If necessary, create a 
+			// new node that has a key = tempKey and push current my_string, 
+			linked_list_push_back(list_head, tempKey, current_word);
+			my_string_destroy(&tempKey);
 		}
-		int num_wfs = gen_vector_get_size(wf_words);
-
-		int sum_wfs = 0;
-		for (int i = 0; i < num_wfs; i++) {
-			char *wf_c_str = my_string_c_str(gen_vector_at(wf_keys, i));
-			int num_members = gen_vector_get_size(gen_vector_at(wf_words, i));
-			sum_wfs += num_members;
-			printf("Word family %s has %d members. Total so far: %d\n", wf_c_str, num_members, sum_wfs);
-		}
-		printf("selecting wf with largest popuilation:");
-
-
+		// iterate over the linked list and assign the current WF key and current WF
+		// vector's values
+		linked_list_assign_new_wf(list_head, hCurrent_WF_key, hVector_word_bank);
 
 		printf("\n\n");
 		num_guesses--;
