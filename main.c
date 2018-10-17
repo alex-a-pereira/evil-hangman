@@ -1,64 +1,97 @@
+// Linked list w/ key/value pairs courtesy of Jim Lawless
+// https://lawlessguy.wordpress.com/2016/02/11/a-simple-associative-array-library-in-c/
 #include <stdio.h>
 #include <stdlib.h>
 #include "my_string.h"
 #include "vector.h"
+#include "game_print.h"
 
-// const DASH is treated as a 'wildcard' character
-// a wildcard is any character that has not been guess yet
-const char DASH = '-';
+struct node;
+typedef struct node Node;
+struct node {
+	MY_STRING key;
+	GEN_VECTOR data;
+	Node* next;
+};
+
+Status linked_list_insert_word(Node** pHead, MY_STRING key_name, MY_STRING current);
+void linked_list_destroy(Node** pHead);
+Node* node_init_default();
+void linked_list_print(Node* head);
+Boolean linked_list_assign_new_wf(Node* head, GEN_VECTOR current_wf, MY_STRING current_key);
+
+const char DASH = '-'; // const DASH is treated as a 'wildcard' char
 
 int word_length_input(void);
 int num_guesses_input(void);
-char guess_char_input(void);
+char guess_char_input(MY_STRING previous_guesses);
 void read_words_from_dict(GEN_VECTOR hVector, int length);
 
 int main(int argc, char* argv[]) {
-
+	print_welcome();
 	int word_length;
 	int num_guesses;
 	int vector_size;
+	MY_STRING hGuessed_letters = my_string_init_default();
 	MY_STRING hCurrent_WF_key;
 	GEN_VECTOR hVector_word_bank;
+	Boolean victory = FALSE;
 
-	//word_length = word_length_input();
-	word_length = 2;
+	word_length = word_length_input();
 	hVector_word_bank = gen_vector_init_default(my_string_assignment, my_string_destroy);
-	// read words of 'word_length' in hVector_words
 	read_words_from_dict(hVector_word_bank, word_length);
 
-	// handle exception when no words of given length exist
+	// no words of given length exist
 	vector_size = gen_vector_get_size(hVector_word_bank);
 	while (vector_size == 0) {
-		printf("No words of length %d exist, choose another length between 1 and 29.\n", vector_size);
+		printf("No words of length %d exist. ", word_length);
 		gen_vector_destroy(&hVector_word_bank);
 		word_length = word_length_input();
 		hVector_word_bank = gen_vector_init_default(my_string_assignment, my_string_destroy);
+		read_words_from_dict(hVector_word_bank, word_length);
 		vector_size = gen_vector_get_size(hVector_word_bank);
 	}
-
 	// init the current WF key to all dashes, which are treated as wildcards
 	hCurrent_WF_key = my_string_init_default();
 	for (int i = 0; i < word_length; i++) {
 		my_string_push_back(hCurrent_WF_key, DASH);
 	}
-
-	num_guesses = num_guesses_input();
-
-	printf("\nSTART GAME!\n\n");
-
+	print_begin();
+	num_guesses = 5; // num_guesses_input();
 	while (num_guesses != 0) {
-		printf("You have %d guesses left.\n", num_guesses);
+		int words_remaining = gen_vector_get_size(hVector_word_bank);
+		if (words_remaining == 0) {
+			victory = TRUE;
+			break;
+		}
 
-		char guess = guess_char_input();
+		printf("\n------------------------------------\n");
+		if (num_guesses == 1) {
+			printf("You have 1 guess left.\n");
+		}
+		else {
+			printf("You have %d guesses left.\n", num_guesses);
+		}
+		printf("Number of words remaining: %d\n", words_remaining);
+		
+		printf("Used letters: ");
+		for (int i = 0; i < my_string_get_size(hGuessed_letters); i++) {
+			printf("%c ", *my_string_at(hGuessed_letters, i));
+		}
+		printf("\n");
+		printf("Word: %s\n", my_string_c_str(hCurrent_WF_key));
+		printf("------------------------------------\n\n");
 
-		GEN_VECTOR wf_words = gen_vector_init_default(gen_vector_assignment, gen_vector_destroy);
-		GEN_VECTOR wf_keys = gen_vector_init_default(my_string_assignment, my_string_destroy);
+		char guess = guess_char_input(hGuessed_letters);
+		my_string_push_back(hGuessed_letters, guess);
+		
+		
+		Node* linked_list_head = NULL;
 
 		// iterate through each my_string that's in the current word bank
 		for (int i = 0; i < gen_vector_get_size(hVector_word_bank); i++) {
 			MY_STRING current_word = gen_vector_at(hVector_word_bank, i);
 			MY_STRING temp_key = my_string_init_default();
-			GEN_VECTOR temp_vector = gen_vector_init_default(my_string_assignment, my_string_destroy);
 			// determine a word's W/F key. I signifies the character number
 			for (int j = 0; j < word_length; j++) {
 				char char_in_current_key = *my_string_at(hCurrent_WF_key, j);
@@ -75,49 +108,145 @@ int main(int argc, char* argv[]) {
 					my_string_push_back(temp_key, DASH);
 				}
 			}
-			printf("iter: %d num WF's: %d\nCurrent WF: %s\n\n", i, gen_vector_get_size(wf_words), my_string_c_str(temp_key));
-			// if there's a match between the current word's key and a key
-			// existing in wf_keys, append the corresponsing vector in wf_words
-			int match_exists = FALSE;
-			for (int j = 0; j < gen_vector_get_size(wf_keys); j++) {
-				if (my_string_compare(temp_key, gen_vector_at(wf_keys, j)) == 0) {
-					match_exists = TRUE;
-					GEN_VECTOR double_temp = gen_vector_at(wf_words, j);
-					gen_vector_push_back(double_temp, current_word);
+			linked_list_insert_word(&linked_list_head, temp_key, current_word);
 
-				}
-			}
-			// if there's no match, add a key / value entry into the gen_vectors
-			if (match_exists == FALSE) {
-				// push a new key onto the keys
-				gen_vector_push_back(wf_keys, temp_key);
-				// allocate memory for a new vector and push the current word into it
-				gen_vector_push_back(temp_vector, current_word);
-				// push the temp vector for the WF into the vectors gen vector
-				gen_vector_push_back(wf_words, temp_vector);
-
-			}
-			gen_vector_destroy(&temp_vector);
 			my_string_destroy(&temp_key);
 			my_string_destroy(&current_word);
 		}
-		int num_wfs = gen_vector_get_size(wf_words);
 
-		int sum_wfs = 0;
-		for (int i = 0; i < num_wfs; i++) {
-			char *wf_c_str = my_string_c_str(gen_vector_at(wf_keys, i));
-			int num_members = gen_vector_get_size(gen_vector_at(wf_words, i));
-			sum_wfs += num_members;
-			printf("Word family %s has %d members. Total so far: %d\n", wf_c_str, num_members, sum_wfs);
+		linked_list_print(linked_list_head);
+		Boolean correct = linked_list_assign_new_wf(linked_list_head, hVector_word_bank, hCurrent_WF_key);
+		
+		if (correct != TRUE) {
+			printf("\nThere were no %c's in the word!\n", guess);
+			num_guesses--;
 		}
-		printf("selecting wf with largest popuilation:");
-
-		printf("\n\n");
-		num_guesses--;
+		else {
+			printf("\n%c was in the word!\n", guess);
+		}
 	}
 
 	gen_vector_destroy(&hVector_word_bank);
+	
+	if (victory == TRUE) {
+		print_winner();
+	}
+	else {
+		print_loser();
+	}
 	return 0;
+}
+
+Node* node_init_default() {
+	Node* pNode = NULL;
+	pNode = (Node*)malloc(sizeof(Node));
+
+	if (pNode != NULL) {
+		pNode->data = gen_vector_init_default(my_string_assignment, my_string_destroy);
+		pNode->key = my_string_init_default();
+		pNode->next = NULL;
+	}
+	return pNode;
+}
+
+Status linked_list_insert_word(Node** pHead, MY_STRING key_name, MY_STRING current) {
+
+	Node* temp = NULL;
+
+	if (*pHead == NULL) { // if no nodes in list, insert a head
+		temp = node_init_default();
+		my_string_assignment(&temp->key, key_name);
+		gen_vector_push_back(temp->data, current);
+
+		*pHead = temp;
+		return SUCCESS;
+	}
+		for (temp = *pHead; ; temp = temp->next) { // iterate thru nodes
+			if (my_string_compare(key_name, temp->key) == 0) { // node's key matches cur_words key
+				gen_vector_push_back(temp->data, current);
+				return SUCCESS;
+			}
+			if (temp->next == NULL) { // reached end of list
+				Node* double_temp = &temp->next;
+				double_temp = node_init_default();
+
+				my_string_assignment(&(double_temp->key), key_name);
+				gen_vector_push_back(double_temp->data, current);
+				
+				temp->next = double_temp;
+				
+				return SUCCESS;
+			}
+	}
+	return FAILURE;
+}
+
+void linked_list_print(Node* head) {
+	while (head != NULL) {
+		int size = gen_vector_get_size(head->data);
+		char * temp_key = my_string_c_str(head->key);
+		printf("Key: %s, num words: %d \n", temp_key, size);
+		head = head->next;
+	}
+}
+
+Boolean linked_list_assign_new_wf(Node* head, GEN_VECTOR current_wf, MY_STRING current_key) {
+	Boolean correct_guess = FALSE;
+	
+	GEN_VECTOR temp_vect = gen_vector_init_default(my_string_assignment, my_string_destroy);
+	int max_idx = 0;
+	int max_size = 0;
+
+	Node *temp = head;
+
+	int i = 0;
+	while (temp != NULL) {
+		int current_size = gen_vector_get_size(temp->data);
+		if (current_size > max_size) {
+			max_idx = i;
+			max_size = current_size;
+		}
+		i++;
+		temp = temp->next;
+	}
+
+	temp = head;
+	i = 0;
+	while (i < max_idx) {
+		temp = temp->next;
+		i++;
+	}
+	int cur_sz = gen_vector_get_size(temp->data);
+	printf("Key with most words: '%s' size %d\n", my_string_c_str(temp->key), cur_sz);
+	
+	gen_vector_assignment(&current_wf, temp->data);
+	
+	if (my_string_compare(current_key, temp->key) != 0) {
+		correct_guess = TRUE;
+	}
+	my_string_assignment(&current_key, temp->key);	
+
+	return correct_guess;
+}
+
+void linked_list_destroy(Node** pHead) {
+	Node* temp;
+	temp = *pHead;
+	while (temp != NULL) {
+		*pHead = temp->next;
+		gen_vector_destroy(&temp->data);
+		my_string_destroy(&temp->key);
+		free(temp);
+		temp = *pHead;
+	}
+}
+
+
+void clear_buffer(void) {
+	char ch;
+	scanf("%c", &ch);
+	while (ch != '\n')
+		scanf("%c", &ch);
 }
 
 int word_length_input(void)
@@ -128,14 +257,11 @@ int word_length_input(void)
 
 	while (numOfConversions == 0 || input < 1 || input > 29)
 	{
-		char ch;
-		scanf("%c", &ch);
-		while (ch != '\n')
-			scanf("%c", &ch);
-
+		clear_buffer();
 		printf("I'm sorry, please enter an integer between 0 and 29: ");
 		numOfConversions = scanf("%d", &input);
 	}
+	clear_buffer();
 	return input;
 }
 
@@ -146,46 +272,54 @@ int num_guesses_input(void) {
 
 	while (numOfConversions == 0 || input < 1)
 	{
-		char ch;
-		scanf("%c", &ch);
-		while (ch != '\n') {
-			scanf("%c", &ch);
-		}
+		clear_buffer();
 
 		printf("I'm sorry, please enter an integer greater than 1: ");
 		numOfConversions = scanf("%d", &input);
 	}
+
+	clear_buffer();
 	return input;
 }
 
-char guess_char_input(void) {
+char guess_char_input(MY_STRING previous_guesses) {
 	int numOfConversions;
 	char input;
+	
 	printf("Guess a character by entering a character a-z: ");
-
 	numOfConversions = scanf("%c", &input);
+	Boolean already_guessed = FALSE;
 
-	if (input < 97 ) {
-		input += 32;
+
+	for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
+		char prev_guess = *my_string_at(previous_guesses, i);
+		if (input == prev_guess) {
+			already_guessed = TRUE;
+		}
 	}
 
-	while (numOfConversions == 0 || input < 97 || input > 122)
+	while (numOfConversions == 0 || input < 97 || input > 122 || already_guessed == TRUE)
 	{
-		char ch;
-		scanf("%c", &ch);
-		while (ch != '\n') {
-			scanf("%c", &ch);
+		if (already_guessed == TRUE) {
+			printf("You've already guessed %c. ", input);
 		}
-
-		printf("Guess a character by entering a character a-z: ");
+		
+		clear_buffer();
+		
+		printf("Guess a letter by entering a character a-z: ");
 		numOfConversions = scanf("%c", &input);
-
-		if (input < 97 ) {
-			input += 32;
+		
+		already_guessed = FALSE;
+		for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
+			char prev_guess = *my_string_at(previous_guesses, i);
+			if (input == prev_guess) {
+				already_guessed = TRUE;
+			}
 		}
 	}
+	clear_buffer();
 	return input;
-	}
+}
 
 void read_words_from_dict(GEN_VECTOR hVector, int length) {
 	MY_STRING hMy_string = NULL;
@@ -193,7 +327,7 @@ void read_words_from_dict(GEN_VECTOR hVector, int length) {
 
 	FILE *fp = fopen("./dictionary.txt", "r");
 
-	printf("...finding all strings in dict where str size == %d\n", length);
+	printf("Loading words of size %d...\n", length);
 	while (my_string_extraction(hMy_string, fp))
 	{
 		if (my_string_get_size(hMy_string) == length) {
@@ -204,12 +338,5 @@ void read_words_from_dict(GEN_VECTOR hVector, int length) {
 
 	int vector_size = gen_vector_get_size(hVector);
 
-	MY_STRING my_string_result = NULL;
-	for (int i = 0; i < vector_size; i++) {
-		my_string_result = gen_vector_at(hVector, i);
-		char * c_str = my_string_c_str(my_string_result);
-		printf("%s\t", c_str);
-	}
-	printf("\n");
 	fclose(fp);
 }

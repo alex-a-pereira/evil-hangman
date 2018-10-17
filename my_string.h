@@ -159,7 +159,7 @@ POST:
 The memory used for the MY_STRING object has been reclaimed by the system
 The handle referred to by the pointer phMy_string has bee set to NULL
 */
-void my_string_destroy(Item *pItem);
+void my_string_destroy(Item_ptr pItem);
 
 //Precondition: pLeft is the address of a MY_STRING handle
 // containing a valid MY_STRING object address OR NULL.
@@ -173,5 +173,5 @@ void my_string_destroy(Item *pItem);
 // attempt to resize to hold the data in Right. On failure pLeft will be
 // left as NULL and any memory that may have been used by a potential
 // object indicated by pLeft will be returned to the freestore.
-Status my_string_assignment(Item* pLeft, Item Right);
+Status my_string_assignment(Item_ptr pLeft, Item Right);
 #endif

@@ -41,26 +41,26 @@ Status gen_vector_push_back(GEN_VECTOR hVector, Item hItem) {
 
 	if (pVector->size >= pVector->capacity) {
 		Item_ptr temp = NULL;
-		temp = (Item*)malloc(sizeof(Item)*pVector->capacity * 2);
+		temp = (Item_ptr)malloc(sizeof(Item)*pVector->capacity * 2);
 
 		if (temp == NULL) {
+			printf("FAIL\n");
 			return FAILURE;
 		}
 
-		for (int i = 0; i < pVector->capacity * 2; i++) {
-			if (i < pVector->capacity) {
-				temp[i] = pVector->data[i];
-			}
-			else {
-				temp[i] = NULL;
-			}
+		for (int i = 0; i < pVector->size; i++) {
+			temp[i] = pVector->data[i];
 		}
+		for (int i = pVector->size; i < pVector->capacity * 2; i++) {
+			temp[i] = NULL;
+		}
+
 		free(pVector->data);
 		pVector->data = temp;
 		pVector->capacity *= 2;
 	}
-	
-	Item* addr_to_edit = &pVector->data[pVector->size];
+
+	Item_ptr addr_to_edit = &(pVector->data[pVector->size]);
 
 	pVector->item_assignment(addr_to_edit, hItem);
 	pVector->size++;
@@ -70,13 +70,13 @@ Status gen_vector_push_back(GEN_VECTOR hVector, Item hItem) {
 
 void gen_vector_destroy(GEN_VECTOR* phVector) {
 	Gen_vector* pVector = (Gen_vector*)*phVector;
-
+	
 	if (pVector->size != 0) {
 		for (int i = 0; i < pVector->size; i++) {
-			pVector->item_destroy(&pVector->data[i]);
+			Item_ptr addr_to_destroy = &pVector->data[i];
+			pVector->item_destroy(addr_to_destroy);
 		}
 	}
-
 	free(pVector->data);
 	free(pVector);
 	*phVector = NULL;
@@ -95,6 +95,7 @@ int gen_vector_get_capacity(GEN_VECTOR hVector) {
 Item gen_vector_at(GEN_VECTOR hVector, int index) {
 	Gen_vector* pVector = (Gen_vector*)hVector;
 	if (index < 0 || index >= pVector->size) {
+		printf("too large\n");
 		return NULL;
 	}
 	return pVector->data[index];
@@ -113,58 +114,59 @@ Status gen_vector_pop_back(GEN_VECTOR hVector) {
 Status gen_vector_assignment(Item_ptr phLeft, Item hRight) {
 	// cast Item Right to have My_string typing
 	Gen_vector *pRight = (Gen_vector*)hRight;
-	Gen_vector *pLeft = (Gen_vector*)*phLeft;
+	Gen_vector *pGen_vector_left = (Gen_vector*)*phLeft;
 	// if object in address held by pLeft is NULL
 	// create a new my_string , then deep copy Right into it
-	if (pLeft == NULL) {
-		pLeft = (Gen_vector*)malloc(sizeof(Gen_vector));
-		if (pLeft != NULL)
+	if (pGen_vector_left == NULL) {
+		Gen_vector *pNew_gen_vector = NULL;
+		pNew_gen_vector = (Gen_vector*)malloc(sizeof(Gen_vector));
+		
+		if (pNew_gen_vector != NULL)
 		{
-			*phLeft = pLeft;
-			pLeft->size = pRight->size;
-			pLeft->capacity = pRight->capacity;
-			pLeft->data = (void**)malloc(sizeof(void*) * pLeft->capacity);
-			if (pLeft->data == NULL)
+			*phLeft = pNew_gen_vector;
+			pNew_gen_vector->size = pRight->size;
+			pNew_gen_vector->capacity = pRight->capacity;
+			pNew_gen_vector->data = (void**)malloc(sizeof(void*) * pNew_gen_vector->capacity);
+			
+			if (pNew_gen_vector->data == NULL)
 			{
-				free(pLeft);
-				pLeft = NULL;
+				printf("FAILURE\n");
+				free(pNew_gen_vector);
+				pNew_gen_vector = NULL;
 			}
 			else {
 				int i;
-				for (i = 0; i < pLeft->size; i++) {
-					pLeft->data[i] = pRight->data[i];
-				}
-				for (i; i < pLeft->capacity; i++) {
-					pLeft->data[i] = NULL;
+				for (i = 0; i < pRight->capacity; i++) {
+					pNew_gen_vector->data[i] = pRight->data[i];
 				}
 			}
-			pLeft->item_assignment = pRight->item_assignment;
-			pLeft->item_destroy = pRight->item_destroy;
+			pNew_gen_vector->item_assignment = pRight->item_assignment;
+			pNew_gen_vector->item_destroy = pRight->item_destroy;
+		}
+		else {
+			printf("FAILURE\n");
 		}
 	}
 	// else deep copy Right into *pLeft, freeing and resizing if necessary
 	else {
-
+		Gen_vector *pGen_vector_left = (Gen_vector*)*phLeft;
 		// only free and reallocate memory if capacities differ
-		if (pLeft->capacity != pRight->capacity) {
-			free(pLeft->data);
+		if (pGen_vector_left->capacity != pRight->capacity) {
+			free(pGen_vector_left->data);
 
-			pLeft->size = pRight->size;
-			pLeft->capacity = pRight->capacity;
-			pLeft->data = (Item *)malloc(sizeof(Item) * pLeft->capacity);
+			pGen_vector_left->size = pRight->size;
+			pGen_vector_left->capacity = pRight->capacity;
+			pGen_vector_left->data = (Item *)malloc(sizeof(Item) * pGen_vector_left->capacity);
 
-			for (int i = 0; i < pLeft->size; i++) {
-				pLeft->data[i] = pRight->data[i];
+			for (int i = 0; i < pGen_vector_left->size; i++) {
+				pGen_vector_left->data[i] = pRight->data[i];
 			}
 		}
 		else {
-			pLeft->size = pRight->size;
+			pGen_vector_left->size = pRight->size;
 			int i;
-			for (i = 0; i < pLeft->size; i++) {
-				pLeft->data[i] = pRight->data[i];
-			}
-			for (i; i < pLeft->capacity; i++) {
-				pLeft->data[i] = NULL;
+			for (i = 0; i < pGen_vector_left->capacity; i++) {
+				pGen_vector_left->data[i] = pRight->data[i];
 			}
 		}
 	}

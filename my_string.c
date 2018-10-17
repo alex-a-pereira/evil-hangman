@@ -331,7 +331,7 @@ Status my_string_concat(MY_STRING hResult, MY_STRING hAppend) {
 //
 // DESTROY
 //
-void my_string_destroy(Item *pItem)
+void my_string_destroy(Item_ptr pItem)
 {
 	My_string *pMy_string = (My_string *)*pItem;
 	free(pMy_string->data);
@@ -341,24 +341,26 @@ void my_string_destroy(Item *pItem)
 //
 // ASSIGNMENT
 //
-Status my_string_assignment(Item* pLeft, Item Right) {
+Status my_string_assignment(Item_ptr pLeft, Item Right) {
 	// cast Item Right to have My_string typing
 	My_string *pMy_string_right = (My_string *)Right;
-
+	My_string *pMy_string_left = (My_string *)*pLeft;
 	// if object in address held by pLeft is NULL
 	// create a new my_string , then deep copy Right into it
-	if (*pLeft == NULL) {
+	if (pMy_string_left == NULL) {
 		My_string *pMy_string_new = NULL;
 		pMy_string_new = (My_string *)malloc(sizeof(My_string));
 
 		if (pMy_string_new != NULL)
 		{
+			*pLeft = pMy_string_new;
 			pMy_string_new->size = pMy_string_right->size;
 			pMy_string_new->capacity = pMy_string_right->capacity;
 			pMy_string_new->data = (char*)malloc(sizeof(char) * pMy_string_new->capacity);
 
 			if (pMy_string_new->data == NULL)
 			{
+				printf("FAILURE\n");
 				free(pMy_string_new);
 				pMy_string_new = NULL;
 			}
@@ -368,7 +370,10 @@ Status my_string_assignment(Item* pLeft, Item Right) {
 				}
 			}
 		}
-		*pLeft = pMy_string_new;
+		else {
+			printf("FAILURE\n");
+		}
+		
 	}
 	// else deep copy Right into *pLeft, freeing and resizing if necessary
 	else {
