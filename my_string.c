@@ -11,9 +11,6 @@ struct my_string
 };
 typedef struct my_string My_string;
 
-//
-// INIT
-//
 MY_STRING my_string_init_default(void)
 {
 	My_string *pMy_string = NULL;
@@ -41,7 +38,6 @@ MY_STRING my_string_init_c_string(const char *c_string)
 	{
 		len_c_string++;
 	}
-	// bring length up to actual length, which is max idx + 1
 	len_c_string++;
 
 	My_string *pMy_string = NULL;
@@ -66,13 +62,10 @@ MY_STRING my_string_init_c_string(const char *c_string)
 	}
 	return pMy_string;
 }
-//
-// PUSH and POP
-//
+
 Status my_string_push_back(MY_STRING hMy_string, char item) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
-	// handle case where no room is available in the string
  	if (pMy_string->size + 1 == pMy_string->capacity)
 	{
 		int old_size = pMy_string->capacity - 1;
@@ -84,7 +77,6 @@ Status my_string_push_back(MY_STRING hMy_string, char item) {
 
 		free(pMy_string->data);
 
-		// update string capacity and dynamically increased allocate memory
 		pMy_string->capacity = (old_size * 2) + 1;
 		pMy_string->data = (char *)malloc(sizeof(char) * (pMy_string->capacity));
 
@@ -103,7 +95,7 @@ Status my_string_push_back(MY_STRING hMy_string, char item) {
 
 	return SUCCESS;
 }
-// POP
+
 Status my_string_pop_back(MY_STRING hMy_string)
 {
 	My_string *pMy_string = (My_string *)hMy_string;
@@ -117,20 +109,18 @@ Status my_string_pop_back(MY_STRING hMy_string)
 	}
 }
 
-
-// GET SIZE
 int my_string_get_size(MY_STRING hMy_string)
 {
 	My_string *pMy_string = (My_string *)hMy_string;
 	return pMy_string->size;
 }
-// GET CAPACITY
+
 int my_string_get_capacity(MY_STRING hMy_string)
 {
 	My_string *pMy_string = (My_string *)hMy_string;
 	return pMy_string->capacity;
 }
-// EMPTY
+
 Boolean my_string_empty(MY_STRING hMy_string) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
@@ -142,7 +132,6 @@ Boolean my_string_empty(MY_STRING hMy_string) {
 	}
 }
 
-// GET CHAR
 char* my_string_at(MY_STRING hMy_string, int index) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
@@ -154,9 +143,7 @@ char* my_string_at(MY_STRING hMy_string, int index) {
 		return pChar;
 	}
 }
-//
-// GET C STRING
-//
+
 char* my_string_c_str(MY_STRING hMy_string) {
 	My_string *pMy_string = (My_string *)hMy_string;
 
@@ -169,24 +156,19 @@ char* my_string_c_str(MY_STRING hMy_string) {
 		return pChar;
 	}
 }
-//
-// EXTRACTION from file
-//
+
 Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 {
 	My_string *pMy_string = (My_string *)hMy_string;
 
-	// clear previous values from data, if they exist
 	if (pMy_string->size > 0) {
 		free(pMy_string->data);
 		pMy_string->size = 0;
 		pMy_string->data = (char *)malloc(sizeof(char) * pMy_string->capacity);
 	}
 
-	// parse past leading whitespace
 	char ch_from_file = fgetc(fp);
 
-	// return false when the end of file is reached
 	if (ch_from_file == EOF)
 	{
 		return FAILURE;
@@ -216,7 +198,6 @@ Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 
 			free(pMy_string->data);
 
-			// update string capacity and dynamically increased allocate memory
 			pMy_string->capacity = (old_size * 2) + 1;
 			pMy_string->data = (char *)malloc(sizeof(char) * (pMy_string->capacity));
 
@@ -230,22 +211,17 @@ Status my_string_extraction(MY_STRING hMy_string, FILE *fp)
 
 			free(temp_data1);
 		}
-		// Store new char into my_string and increment size
 		pMy_string->data[ch_count] = ch_from_file;
-		// get next character and increment counter
 		ch_from_file = fgetc(fp);
 		ch_count++;
 	}
 
-	// update size to accurately reflect the number of characters
 	pMy_string->size = ch_count;
 
-	// move cursor back to allow next iteration to parse cleanly
 	fseek(fp, -1, SEEK_CUR);
 	return SUCCESS;
 }
 
-// INSERTION to file
 Status my_string_insertion(MY_STRING hMy_string, FILE *fp)
 {
 	My_string *pMy_string = (My_string *)hMy_string;
@@ -258,9 +234,7 @@ Status my_string_insertion(MY_STRING hMy_string, FILE *fp)
 	printf("\n");
 	return FAILURE;
 }
-//
-// COMPARE
-//
+
 int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string)
 {
 	My_string *pLeft_string = (My_string *)hLeft_string;
@@ -279,9 +253,7 @@ int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string)
 
 		if (left_string_data[i] == right_string_data[i])
 		{
-			// Since we've made it this far, all chars are the same so far.
-			// if next current index + 1 == size of left str but not size of right str,
-			// left str is shorter.
+
 			if ((i + 1 == left_string_size) && (i + 1 != right_string_size))
 			{
 				return -1;
@@ -306,12 +278,8 @@ int my_string_compare(MY_STRING hLeft_string, MY_STRING hRight_string)
 		}
 		i++;
 	}
-	// only make it this far if we iterate to the maximum index of both strings
 	return 0;
 }
-//
-// CONCAT
-//
 Status my_string_concat(MY_STRING hResult, MY_STRING hAppend) {
 	My_string *pResult = (My_string *)hResult;
 	My_string *pAppend = (My_string *)hAppend;
@@ -328,9 +296,7 @@ Status my_string_concat(MY_STRING hResult, MY_STRING hAppend) {
 		return SUCCESS;
 	}
 }
-//
-// DESTROY
-//
+
 void my_string_destroy(Item_ptr pItem)
 {
 	My_string *pMy_string = (My_string *)*pItem;
@@ -338,15 +304,11 @@ void my_string_destroy(Item_ptr pItem)
 	free(pMy_string);
 	*pItem = NULL;
 }
-//
-// ASSIGNMENT
-//
+
 Status my_string_assignment(Item_ptr pLeft, Item Right) {
-	// cast Item Right to have My_string typing
 	My_string *pMy_string_right = (My_string *)Right;
 	My_string *pMy_string_left = (My_string *)*pLeft;
-	// if object in address held by pLeft is NULL
-	// create a new my_string , then deep copy Right into it
+
 	if (pMy_string_left == NULL) {
 		My_string *pMy_string_new = NULL;
 		pMy_string_new = (My_string *)malloc(sizeof(My_string));
@@ -375,20 +337,17 @@ Status my_string_assignment(Item_ptr pLeft, Item Right) {
 		}
 		
 	}
-	// else deep copy Right into *pLeft, freeing and resizing if necessary
+
 	else {
 		My_string *pMy_string_left = (My_string *)*pLeft;
 
-		// only free and reallocate memory if capacities differ
 		if (pMy_string_left->capacity != pMy_string_right->capacity) {
 			free(pMy_string_left->data);
 
 			pMy_string_left->size = pMy_string_right->size;
 			pMy_string_left->capacity = pMy_string_right->capacity;
 			pMy_string_left->data = (char *)malloc(sizeof(char) * pMy_string_left->capacity);
-			// ???????????????????????
-			// What to do if pMy_string_left is NULL????
-			// ???????????????????????
+			
 			for (int i = 0; i < pMy_string_left->size; i++) {
 				pMy_string_left->data[i] = pMy_string_right->data[i];
 			}
