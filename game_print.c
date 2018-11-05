@@ -69,5 +69,4 @@ void print_winner(void) {
 	char * h = "  \\_/  |___| \\___| |_|   \\___/|_|_\\ |_|   ";
 
 	printf("%s\n %s\n %s\n %s\n %s\n %s\n %s\n %s\n\n\n", a, b, c, d, e, f, g, h);
-	printf("If you beat me, I know you cheated.\n");
 }

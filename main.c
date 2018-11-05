@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	G_VECTOR hVector_word_bank;
 	Boolean victory = FALSE;
 
-	word_length = 8; //word_length_input();
+	word_length = word_length_input();
 	hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
 	read_words_from_dict(hVector_word_bank, word_length);
 
@@ -55,10 +55,15 @@ int main(int argc, char* argv[]) {
 		my_string_push_back(hCurrent_WF_key, DASH);
 	}
 	print_begin();
-	num_guesses = 6; // num_guesses_input();
+	num_guesses = num_guesses_input();
 	while (num_guesses != 0) {
 		int words_remaining = g_vector_get_size(hVector_word_bank);
-		if (words_remaining == 0) {
+		if (words_remaining == 1 && my_string_contains(hCurrent_WF_key, DASH) == FALSE) {
+			MY_STRING winning_word = NULL;
+			my_string_assignment(&winning_word, g_vector_at(hVector_word_bank, 0));
+			printf("You correctly guessed the word: %s\n", my_string_c_str(winning_word));
+			my_string_destroy(&winning_word);
+			
 			victory = TRUE;
 			break;
 		}

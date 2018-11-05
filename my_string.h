@@ -174,4 +174,5 @@ void my_string_destroy(Item_ptr pItem);
 // left as NULL and any memory that may have been used by a potential
 // object indicated by pLeft will be returned to the freestore.
 Status my_string_assignment(Item_ptr pLeft, Item Right);
+Boolean my_string_contains(MY_STRING hMy_string, char guess);
 #endif

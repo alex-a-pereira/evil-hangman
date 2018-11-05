@@ -362,3 +362,16 @@ Status my_string_assignment(Item_ptr pLeft, Item Right) {
 	}
 	return SUCCESS;
 }
+
+Boolean my_string_contains(MY_STRING hMy_string, char guess) {
+	My_string *pMy_string = (My_string *)hMy_string;
+
+	for (int i = 0; i < pMy_string->size; i++) {
+		if (*my_string_at(hMy_string, i) == guess) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+
+
+}
