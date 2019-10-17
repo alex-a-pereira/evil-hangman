@@ -5,3 +5,7 @@
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+
+# build related
+build/*.o
+string_driver

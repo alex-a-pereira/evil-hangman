@@ -1,8 +1,14 @@
 #ifndef MY_STRING_H
 #define MY_STRING_H
-#include "status.h"
-#include "boolean.h"
-#include "generic.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#include "../status.h"
+#include "../boolean.h"
+#include "../generic.h"
+
 /*
 struct MY_STRING declares an object that contains the following:
 1. an integer 'size', which holds the number of characters contained

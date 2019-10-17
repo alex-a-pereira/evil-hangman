@@ -1,10 +1,14 @@
 #ifndef VECTOR_H
 #define VECTOR_H
-#include "my_string.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../generic.h"
+#include "../status.h"
 
 typedef void* G_VECTOR;
-G_VECTOR g_vector_init_default(Status(*item_assign)(Item_ptr, Item),
-	void(*item_destroy)(Item_ptr));
+G_VECTOR g_vector_init_default(Status(*item_assign)(Item_ptr, Item), void(*item_destroy)(Item_ptr));
 
 Status g_vector_push_back(G_VECTOR hVector, Item item);
 

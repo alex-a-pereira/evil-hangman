@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include "my_string.h"
 
 struct my_string

@@ -2,9 +2,13 @@
 // https://lawlessguy.wordpress.com/2016/02/11/a-simple-associative-array-library-in-c/
 #include <stdlib.h>
 #include <stdio.h>
-#include "my_string.h"
-#include "vector.h"
-#include "game_print.h"
+
+// Data types
+#include "data_types/my_string/my_string.h"
+#include "data_types/vector/vector.h"
+
+// Status messages
+#include "ui/game_print.h"
 
 typedef struct node Node;
 struct node {
@@ -330,9 +334,10 @@ void read_words_from_dict(G_VECTOR hVector, int length) {
 	MY_STRING hMy_string = NULL;
 	hMy_string = my_string_init_default();
 
-	FILE *fp = fopen("./dictionary.txt", "r");
+	FILE *fp = fopen("./src/dictionary.txt", "r");
 
 	printf("Loading words of size %d...\n", length);
+
 	while (my_string_extraction(hMy_string, fp))
 	{
 		if (my_string_get_size(hMy_string) == length) {
