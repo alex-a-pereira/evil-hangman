@@ -1,7 +1,6 @@
 // Linked list w/ key/value pairs courtesy of Jim Lawless
 // https://lawlessguy.wordpress.com/2016/02/11/a-simple-associative-array-library-in-c/
 #include <stdlib.h>
-#include <crtdbg.h>  
 #include <stdio.h>
 #include "my_string.h"
 #include "vector.h"
@@ -140,7 +139,7 @@ int main(int argc, char* argv[]) {
 	else {
 		print_loser();
 	}
-	_CrtDumpMemoryLeaks();
+
 	return 0;
 }
 

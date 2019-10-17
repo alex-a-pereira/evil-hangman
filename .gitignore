@@ -1,8 +1,5 @@
 /Debug
 
-# testing
-/coverage
-Makefile
 # misc
 .DS_Store
 *.vcxproj
