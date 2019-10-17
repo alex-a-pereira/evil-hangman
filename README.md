@@ -13,7 +13,7 @@ make
 
 Run the program
 ```
-./string_driver
+./play_evil_hangman
 ```
 
 ### How to play

@@ -8,4 +8,4 @@
 
 # build related
 build/*.o
-string_driver
+play_evil_hangman
