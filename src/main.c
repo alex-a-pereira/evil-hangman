@@ -39,23 +39,27 @@ void init_game_state(void) {
 	read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
 }
 
-int main(int argc, char* argv[]) {
-	print_welcome();
-
-	int vector_size;
-
-	init_game_state();
-
-	// no words of given length exist
-	vector_size = g_vector_get_size(game_state.hVector_word_bank);
-	while (vector_size == 0) {
+// gets word size input from user and initializes game_state word band and word_length
+void collect_word_size_input_and_init_word_bank(void) {
+	// TODO: should be able to hardcode to 0 initially, call this from init_game_state
+	int num_words_of_specified_length = g_vector_get_size(game_state.hVector_word_bank);
+	while (num_words_of_specified_length == 0) {
 		printf("No words of length %d exist. ", game_state.word_length);
 		g_vector_destroy(&game_state.hVector_word_bank);
 		game_state.word_length = word_length_input();
 		game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
 		read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
-		vector_size = g_vector_get_size(game_state.hVector_word_bank);
+		num_words_of_specified_length = g_vector_get_size(game_state.hVector_word_bank);
 	}
+}
+
+
+int main(int argc, char* argv[]) {
+	print_welcome();
+
+	init_game_state();
+	collect_word_size_input_and_init_word_bank();
+
 	// init the current WF key to all dashes, which are treated as wildcards
 	game_state.hCurrent_WF_key = my_string_init_default();
 	for (int i = 0; i < game_state.word_length; i++) {
