@@ -1,19 +1,6 @@
 #include "word_linked_list.h"
 
-Node* node_init_default() {
-	Node* pNode = NULL;
-	pNode = (Node*)malloc(sizeof(Node));
-
-	if (pNode != NULL) {
-		pNode->data = g_vector_init_default(my_string_assignment, my_string_destroy);
-		pNode->key = my_string_init_default();
-		pNode->next = NULL;
-	}
-	return pNode;
-}
-
 Status linked_list_insert_word(Node** pHead, MY_STRING key_name, MY_STRING current) {
-
 	Node* temp = NULL;
 
 	if (*pHead == NULL) { // if no nodes in list, insert a head
