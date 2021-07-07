@@ -18,77 +18,96 @@ int num_guesses_input(void);
 char guess_char_input(MY_STRING previous_guesses);
 void read_words_from_dict(G_VECTOR hVector, int length);
 
-int main(int argc, char* argv[]) {
-	print_welcome();
-	int word_length, num_guesses, vector_size;
-	MY_STRING hGuessed_letters = my_string_init_default();
+struct GameState {
+	int word_length;
+	int num_guesses;
+	MY_STRING hGuessed_letters;
 	MY_STRING hCurrent_WF_key;
 	G_VECTOR hVector_word_bank;
-	Boolean victory = FALSE;
+	Boolean victory;
+};
 
-	word_length = word_length_input();
-	hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
-	read_words_from_dict(hVector_word_bank, word_length);
+
+struct GameState init_game_state(void) {
+	struct GameState game_state;
+	game_state.word_length = word_length_input();
+	game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
+	game_state.victory = FALSE;
+	game_state.num_guesses = num_guesses_input();
+	game_state.hGuessed_letters = my_string_init_default();
+	read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
+	return game_state;
+}
+
+
+int main(int argc, char* argv[]) {
+	print_welcome();
+
+	int vector_size;
+
+	struct GameState game_state = init_game_state();
+
 
 	// no words of given length exist
-	vector_size = g_vector_get_size(hVector_word_bank);
+	vector_size = g_vector_get_size(game_state.hVector_word_bank);
 	while (vector_size == 0) {
-		printf("No words of length %d exist. ", word_length);
-		g_vector_destroy(&hVector_word_bank);
-		word_length = word_length_input();
-		hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
-		read_words_from_dict(hVector_word_bank, word_length);
-		vector_size = g_vector_get_size(hVector_word_bank);
+		printf("No words of length %d exist. ", game_state.word_length);
+		g_vector_destroy(&game_state.hVector_word_bank);
+		game_state.word_length = word_length_input();
+		game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
+		read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
+		vector_size = g_vector_get_size(game_state.hVector_word_bank);
 	}
 	// init the current WF key to all dashes, which are treated as wildcards
-	hCurrent_WF_key = my_string_init_default();
-	for (int i = 0; i < word_length; i++) {
-		my_string_push_back(hCurrent_WF_key, DASH);
+	game_state.hCurrent_WF_key = my_string_init_default();
+	for (int i = 0; i < game_state.word_length; i++) {
+		my_string_push_back(game_state.hCurrent_WF_key, DASH);
 	}
+
 	print_begin();
-	num_guesses = num_guesses_input();
-	while (num_guesses != 0) {
-		int words_remaining = g_vector_get_size(hVector_word_bank);
-		if (words_remaining == 1 && my_string_contains(hCurrent_WF_key, DASH) == FALSE) {
+
+	while (game_state.num_guesses != 0) {
+		int words_remaining = g_vector_get_size(game_state.hVector_word_bank);
+		if (words_remaining == 1 && my_string_contains(game_state.hCurrent_WF_key, DASH) == FALSE) {
 			MY_STRING winning_word = NULL;
-			my_string_assignment(&winning_word, g_vector_at(hVector_word_bank, 0));
+			my_string_assignment(&winning_word, g_vector_at(game_state.hVector_word_bank, 0));
 			printf("You correctly guessed the word: %s\n", my_string_c_str(winning_word));
 			my_string_destroy(&winning_word);
 			
-			victory = TRUE;
+			game_state.victory = TRUE;
 			break;
 		}
 
 		printf("\n------------------------------------\n");
-		if (num_guesses == 1) {
+		if (game_state.num_guesses == 1) {
 			printf("You have 1 guess left.\n");
 		}
 		else {
-			printf("You have %d guesses left.\n", num_guesses);
+			printf("You have %d guesses left.\n", game_state.num_guesses);
 		}
 		printf("Number of words remaining: %d\n", words_remaining);
 		
 		printf("Used letters: ");
-		for (int i = 0; i < my_string_get_size(hGuessed_letters); i++) {
-			printf("%c ", *my_string_at(hGuessed_letters, i));
+		for (int i = 0; i < my_string_get_size(game_state.hGuessed_letters); i++) {
+			printf("%c ", *my_string_at(game_state.hGuessed_letters, i));
 		}
 		printf("\n");
-		printf("Word: %s\n", my_string_c_str(hCurrent_WF_key));
+		printf("Word: %s\n", my_string_c_str(game_state.hCurrent_WF_key));
 		printf("------------------------------------\n\n");
 
-		char guess = guess_char_input(hGuessed_letters);
-		my_string_push_back(hGuessed_letters, guess);
+		char guess = guess_char_input(game_state.hGuessed_letters);
+		my_string_push_back(game_state.hGuessed_letters, guess);
 		
 		
 		Node* linked_list_head = NULL;
 
 		// iterate through each my_string that's in the current word bank
-		for (int i = 0; i < g_vector_get_size(hVector_word_bank); i++) {
-			MY_STRING current_word = g_vector_at(hVector_word_bank, i);
+		for (int i = 0; i < g_vector_get_size(game_state.hVector_word_bank); i++) {
+			MY_STRING current_word = g_vector_at(game_state.hVector_word_bank, i);
 			MY_STRING temp_key = my_string_init_default();
 			// determine a word's W/F key. I signifies the character number
-			for (int j = 0; j < word_length; j++) {
-				char char_in_current_key = *my_string_at(hCurrent_WF_key, j);
+			for (int j = 0; j < game_state.word_length; j++) {
+				char char_in_current_key = *my_string_at(game_state.hCurrent_WF_key, j);
 				char char_in_current_word = *my_string_at(current_word, j);
 				// when a char in the current key is not a dash, the user has successfully
 				// guessed this character before. So, make sure it's in the new key.
@@ -109,11 +128,11 @@ int main(int argc, char* argv[]) {
 		}
 
 		linked_list_print(linked_list_head);
-		Boolean correct = linked_list_assign_new_wf(linked_list_head, hVector_word_bank, hCurrent_WF_key);
+		Boolean correct = linked_list_assign_new_wf(linked_list_head, game_state.hVector_word_bank, game_state.hCurrent_WF_key);
 		
 		if (correct != TRUE) {
 			printf("\nThere were no %c's in the word!\n", guess);
-			num_guesses--;
+			game_state.num_guesses--;
 		}
 		else {
 			printf("\n%c was in the word!\n", guess);
@@ -121,11 +140,11 @@ int main(int argc, char* argv[]) {
 		linked_list_destroy(&linked_list_head);
 	}
 	
-	g_vector_destroy(&hVector_word_bank);
-	my_string_destroy(&hGuessed_letters);
-	my_string_destroy(&hCurrent_WF_key);
+	g_vector_destroy(&game_state.hVector_word_bank);
+	my_string_destroy(&game_state.hGuessed_letters);
+	my_string_destroy(&game_state.hCurrent_WF_key);
 
-	if (victory == TRUE) {
+	if (game_state.victory == TRUE) {
 		print_winner();
 	}
 	else {
