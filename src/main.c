@@ -28,25 +28,23 @@ struct GameState {
 };
 
 
-struct GameState init_game_state(void) {
-	struct GameState game_state;
+struct GameState game_state;
+
+void init_game_state(void) {
 	game_state.word_length = word_length_input();
 	game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
 	game_state.victory = FALSE;
 	game_state.num_guesses = num_guesses_input();
 	game_state.hGuessed_letters = my_string_init_default();
 	read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
-	return game_state;
 }
-
 
 int main(int argc, char* argv[]) {
 	print_welcome();
 
 	int vector_size;
 
-	struct GameState game_state = init_game_state();
-
+	init_game_state();
 
 	// no words of given length exist
 	vector_size = g_vector_get_size(game_state.hVector_word_bank);
