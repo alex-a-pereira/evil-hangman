@@ -58,15 +58,15 @@ int main(int argc, char* argv[]) {
 		printf("Number of words remaining: %d\n", words_remaining);
 		
 		printf("Used letters: ");
-		for (int i = 0; i < my_string_get_size(game_state.hGuessed_letters); i++) {
-			printf("%c ", *my_string_at(game_state.hGuessed_letters, i));
+		for (int i = 0; i < my_string_get_size(game_state.previous_guesses); i++) {
+			printf("%c ", *my_string_at(game_state.previous_guesses, i));
 		}
 		printf("\n");
 		printf("Word: %s\n", my_string_c_str(game_state.hCurrent_WF_key));
 		printf("------------------------------------\n\n");
 
-		char guess = get_char_guess_input(game_state.hGuessed_letters);
-		my_string_push_back(game_state.hGuessed_letters, guess);
+		char guess = get_char_guess_input(game_state.previous_guesses);
+		my_string_push_back(game_state.previous_guesses, guess);
 		
 		
 		Node* linked_list_head = NULL;
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 	}
 	
 	g_vector_destroy(&game_state.hVector_word_bank);
-	my_string_destroy(&game_state.hGuessed_letters);
+	my_string_destroy(&game_state.previous_guesses);
 	my_string_destroy(&game_state.hCurrent_WF_key);
 
 	if (game_state.victory == TRUE) {

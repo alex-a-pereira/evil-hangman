@@ -12,7 +12,7 @@ void init_game_state(void) {
 	game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
 	game_state.victory = FALSE;
 	game_state.num_guesses = get_num_guesses_input();
-	game_state.hGuessed_letters = my_string_init_default();
+	game_state.previous_guesses = my_string_init_default();
 	extract_correct_len_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
 }
 
