@@ -8,13 +8,14 @@
 #include "data_types/vector/vector.h"
 #include "data_types/word_linked_list/word_linked_list.h"
 
+// utils
+#include "user_input/user_input.h"
+
 // Status messages
 #include "ui/game_print.h"
 
 const char DASH = '-'; // const DASH is treated as a 'wildcard' char
 
-int word_length_input(void);
-int num_guesses_input(void);
 char guess_char_input(MY_STRING previous_guesses);
 void read_words_from_dict(G_VECTOR hVector, int length);
 
@@ -31,10 +32,10 @@ struct GameState {
 struct GameState game_state;
 
 void init_game_state(void) {
-	game_state.word_length = word_length_input();
+	game_state.word_length = get_word_length_input();
 	game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
 	game_state.victory = FALSE;
-	game_state.num_guesses = num_guesses_input();
+	game_state.num_guesses = get_num_guesses_input();
 	game_state.hGuessed_letters = my_string_init_default();
 	read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
 }
@@ -46,7 +47,7 @@ void collect_word_size_input_and_init_word_bank(void) {
 	while (num_words_of_specified_length == 0) {
 		printf("No words of length %d exist. ", game_state.word_length);
 		g_vector_destroy(&game_state.hVector_word_bank);
-		game_state.word_length = word_length_input();
+		game_state.word_length = get_word_length_input();
 		game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
 		read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
 		num_words_of_specified_length = g_vector_get_size(game_state.hVector_word_bank);
@@ -156,46 +157,11 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-
-
-void clear_buffer(void) {
+void _clear_buffer(void) {
 	char ch;
 	scanf("%c", &ch);
 	while (ch != '\n')
 		scanf("%c", &ch);
-}
-
-int word_length_input(void)
-{
-	int input, numOfConversions;
-	printf("What length word do you want to play with? Enter an integer between 1 and 29: ");
-	numOfConversions = scanf("%d", &input);
-
-	while (numOfConversions == 0 || input < 1 || input > 29)
-	{
-		clear_buffer();
-		printf("I'm sorry, please enter an integer between 0 and 29: ");
-		numOfConversions = scanf("%d", &input);
-	}
-	clear_buffer();
-	return input;
-}
-
-int num_guesses_input(void) {
-	int input, numOfConversions;
-	printf("How many guesses would you like to have? Enter a positive integer: ");
-	numOfConversions = scanf("%d", &input);
-
-	while (numOfConversions == 0 || input < 1)
-	{
-		clear_buffer();
-
-		printf("I'm sorry, please enter an integer greater than 1: ");
-		numOfConversions = scanf("%d", &input);
-	}
-
-	clear_buffer();
-	return input;
 }
 
 char guess_char_input(MY_STRING previous_guesses) {
@@ -220,7 +186,7 @@ char guess_char_input(MY_STRING previous_guesses) {
 			printf("You've already guessed %c. ", input);
 		}
 		
-		clear_buffer();
+		_clear_buffer();
 		
 		printf("Guess a letter by entering a character a-z: ");
 		numOfConversions = scanf("%c", &input);
@@ -233,7 +199,7 @@ char guess_char_input(MY_STRING previous_guesses) {
 			}
 		}
 	}
-	clear_buffer();
+	_clear_buffer();
 	return input;
 }
 
