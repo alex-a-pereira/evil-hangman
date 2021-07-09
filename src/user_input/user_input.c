@@ -11,6 +11,17 @@ void clear_buffer(void) {
 		scanf("%c", &ch);
 }
 
+Boolean validate_not_already_guessed (char current_guess, MY_STRING previous_guesses) {
+	for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
+		char prev_guess = *my_string_at(previous_guesses, i);
+		if (current_guess == prev_guess) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /*
  * EXPOSED API
 */
@@ -47,6 +58,28 @@ int get_word_length_input(void) {
 	return input;
 }
 
-int get_char_guess_input(void) {
-  return 0;
+char get_char_guess_input(MY_STRING previous_guesses) {
+  int numOfConversions;
+	char input;
+	
+	printf("Guess a character by entering a character a-z: ");
+	numOfConversions = scanf("%c", &input);
+	Boolean already_guessed = validate_not_already_guessed(input, previous_guesses);
+
+
+	while (numOfConversions == 0 || input < 97 || input > 122 || already_guessed == TRUE)
+	{
+		if (already_guessed == TRUE) {
+			printf("You've already guessed %c. ", input);
+		}
+		
+		clear_buffer();
+		
+		printf("Guess a letter by entering a character a-z: ");
+		numOfConversions = scanf("%c", &input);
+		
+		already_guessed = validate_not_already_guessed(input, previous_guesses);
+	}
+	clear_buffer();
+	return input;
 }

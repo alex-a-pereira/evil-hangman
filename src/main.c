@@ -17,8 +17,6 @@
 
 const char DASH = '-'; // const DASH is treated as a 'wildcard' char
 
-char guess_char_input(MY_STRING previous_guesses);
-
 struct GameState {
 	int word_length;
 	int num_guesses;
@@ -98,7 +96,7 @@ int main(int argc, char* argv[]) {
 		printf("Word: %s\n", my_string_c_str(game_state.hCurrent_WF_key));
 		printf("------------------------------------\n\n");
 
-		char guess = guess_char_input(game_state.hGuessed_letters);
+		char guess = get_char_guess_input(game_state.hGuessed_letters);
 		my_string_push_back(game_state.hGuessed_letters, guess);
 		
 		
@@ -155,48 +153,4 @@ int main(int argc, char* argv[]) {
 	}
 
 	return 0;
-}
-
-void _clear_buffer(void) {
-	char ch;
-	scanf("%c", &ch);
-	while (ch != '\n')
-		scanf("%c", &ch);
-}
-
-Boolean validate_not_already_guessed (char current_guess, MY_STRING previous_guesses) {
-	for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
-		char prev_guess = *my_string_at(previous_guesses, i);
-		if (current_guess == prev_guess) {
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
-char guess_char_input(MY_STRING previous_guesses) {
-	int numOfConversions;
-	char input;
-	
-	printf("Guess a character by entering a character a-z: ");
-	numOfConversions = scanf("%c", &input);
-	Boolean already_guessed = validate_not_already_guessed(input, previous_guesses);
-
-
-	while (numOfConversions == 0 || input < 97 || input > 122 || already_guessed == TRUE)
-	{
-		if (already_guessed == TRUE) {
-			printf("You've already guessed %c. ", input);
-		}
-		
-		_clear_buffer();
-		
-		printf("Guess a letter by entering a character a-z: ");
-		numOfConversions = scanf("%c", &input);
-		
-		already_guessed = validate_not_already_guessed(input, previous_guesses);
-	}
-	_clear_buffer();
-	return input;
 }
