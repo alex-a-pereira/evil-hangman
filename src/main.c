@@ -8,6 +8,9 @@
 #include "data_types/vector/vector.h"
 #include "data_types/word_linked_list/word_linked_list.h"
 
+// state
+#include "game_state/game_state.h"
+
 // utils
 #include "user_input/user_input.h"
 #include "dictionary/dictionary.h"
@@ -17,47 +20,13 @@
 
 const char DASH = '-'; // const DASH is treated as a 'wildcard' char
 
-struct GameState {
-	int word_length;
-	int num_guesses;
-	MY_STRING hGuessed_letters;
-	MY_STRING hCurrent_WF_key;
-	G_VECTOR hVector_word_bank;
-	Boolean victory;
-};
-
-
-struct GameState game_state;
-
-void init_game_state(void) {
-	game_state.word_length = get_word_length_input();
-	game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
-	game_state.victory = FALSE;
-	game_state.num_guesses = get_num_guesses_input();
-	game_state.hGuessed_letters = my_string_init_default();
-	extract_correct_len_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
-}
-
-// gets word size input from user and initializes game_state word band and word_length
-void collect_word_size_input_and_init_word_bank(void) {
-	// TODO: should be able to hardcode to 0 initially, call this from init_game_state
-	int num_words_of_specified_length = g_vector_get_size(game_state.hVector_word_bank);
-	while (num_words_of_specified_length == 0) {
-		printf("No words of length %d exist. ", game_state.word_length);
-		g_vector_destroy(&game_state.hVector_word_bank);
-		game_state.word_length = get_word_length_input();
-		game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
-		extract_correct_len_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
-		num_words_of_specified_length = g_vector_get_size(game_state.hVector_word_bank);
-	}
-}
-
-
 int main(int argc, char* argv[]) {
 	print_welcome();
 
 	init_game_state();
 	collect_word_size_input_and_init_word_bank();
+
+	struct GameState game_state = get_game_state();
 
 	// init the current WF key to all dashes, which are treated as wildcards
 	game_state.hCurrent_WF_key = my_string_init_default();
