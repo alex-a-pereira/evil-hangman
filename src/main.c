@@ -10,6 +10,7 @@
 
 // utils
 #include "user_input/user_input.h"
+#include "dictionary/dictionary.h"
 
 // Status messages
 #include "ui/game_print.h"
@@ -17,7 +18,6 @@
 const char DASH = '-'; // const DASH is treated as a 'wildcard' char
 
 char guess_char_input(MY_STRING previous_guesses);
-void read_words_from_dict(G_VECTOR hVector, int length);
 
 struct GameState {
 	int word_length;
@@ -37,7 +37,7 @@ void init_game_state(void) {
 	game_state.victory = FALSE;
 	game_state.num_guesses = get_num_guesses_input();
 	game_state.hGuessed_letters = my_string_init_default();
-	read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
+	extract_correct_len_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
 }
 
 // gets word size input from user and initializes game_state word band and word_length
@@ -49,7 +49,7 @@ void collect_word_size_input_and_init_word_bank(void) {
 		g_vector_destroy(&game_state.hVector_word_bank);
 		game_state.word_length = get_word_length_input();
 		game_state.hVector_word_bank = g_vector_init_default(my_string_assignment, my_string_destroy);
-		read_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
+		extract_correct_len_words_from_dict(game_state.hVector_word_bank, game_state.word_length);
 		num_words_of_specified_length = g_vector_get_size(game_state.hVector_word_bank);
 	}
 }
@@ -199,25 +199,4 @@ char guess_char_input(MY_STRING previous_guesses) {
 	}
 	_clear_buffer();
 	return input;
-}
-
-void read_words_from_dict(G_VECTOR hVector, int length) {
-	MY_STRING hMy_string = NULL;
-	hMy_string = my_string_init_default();
-
-	FILE *fp = fopen("./src/dictionary.txt", "r");
-
-	printf("Loading words of size %d...\n", length);
-
-	while (my_string_extraction(hMy_string, fp))
-	{
-		if (my_string_get_size(hMy_string) == length) {
-			g_vector_push_back(hVector, hMy_string);
-		}
-	}
-	my_string_destroy(&hMy_string);
-
-	int vector_size = g_vector_get_size(hVector);
-
-	fclose(fp);
 }
