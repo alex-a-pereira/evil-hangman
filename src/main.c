@@ -164,21 +164,25 @@ void _clear_buffer(void) {
 		scanf("%c", &ch);
 }
 
+Boolean validate_not_already_guessed (char current_guess, MY_STRING previous_guesses) {
+	for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
+		char prev_guess = *my_string_at(previous_guesses, i);
+		if (current_guess == prev_guess) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 char guess_char_input(MY_STRING previous_guesses) {
 	int numOfConversions;
 	char input;
 	
 	printf("Guess a character by entering a character a-z: ");
 	numOfConversions = scanf("%c", &input);
-	Boolean already_guessed = FALSE;
+	Boolean already_guessed = validate_not_already_guessed(input, previous_guesses);
 
-
-	for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
-		char prev_guess = *my_string_at(previous_guesses, i);
-		if (input == prev_guess) {
-			already_guessed = TRUE;
-		}
-	}
 
 	while (numOfConversions == 0 || input < 97 || input > 122 || already_guessed == TRUE)
 	{
@@ -191,13 +195,7 @@ char guess_char_input(MY_STRING previous_guesses) {
 		printf("Guess a letter by entering a character a-z: ");
 		numOfConversions = scanf("%c", &input);
 		
-		already_guessed = FALSE;
-		for (int i = 0; i < my_string_get_size(previous_guesses); i++) {
-			char prev_guess = *my_string_at(previous_guesses, i);
-			if (input == prev_guess) {
-				already_guessed = TRUE;
-			}
-		}
+		already_guessed = validate_not_already_guessed(input, previous_guesses);
 	}
 	_clear_buffer();
 	return input;
